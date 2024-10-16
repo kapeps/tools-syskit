@@ -188,7 +188,7 @@ module Syskit
                    (!key.kind_of?(Class) || !(key <= Component))
 
                     raise ArgumentError,
-                          'found #{value} as a selection key, but only names, '\
+                          'found #{value} as a selection key, but only names, ' \
                           "component models and data service models are allowed"
                 end
 
@@ -204,8 +204,8 @@ module Syskit
 
                 if value.respond_to?(:fullfills?) && !value.fullfills?(key)
                     raise ArgumentError,
-                          "found #{value.name}(of class #{value.class}) "\
-                          "as a selection for #{key.name}, but "\
+                          "found #{value.name}(of class #{value.class}) " \
+                          "as a selection for #{key.name}, but " \
                           "#{value.name} does not fullfill #{key.name}"
                 end
 
@@ -334,8 +334,8 @@ module Syskit
                     selected_instance ||= sel_task
                     if selected_instance != sel_task
                         raise ArgumentError,
-                              "task instances #{selected_instance} and #{sel_m} "\
-                              "are both selected for #{required_m || requirements}, "\
+                              "task instances #{selected_instance} and #{sel_m} " \
+                              "are both selected for #{required_m || requirements}, " \
                               "but they are not compatible"
                     end
                 end
@@ -364,7 +364,7 @@ module Syskit
                 selected_instance.fullfills?(requirements, requirements.arguments)
             unless valid_selected_instance
                 raise ArgumentError,
-                      "explicitly selected #{selected_instance}, "\
+                      "explicitly selected #{selected_instance}, " \
                       "but it does not fullfill the required #{requirements}"
             end
 
@@ -440,11 +440,11 @@ module Syskit
                 if v.respond_to?(:to_str)
                     result = DependencyInjection
                              .find_name_resolution(v, mapping)
-                    if !result
+                    if result
+                        result
+                    else
                         unresolved << v
                         v
-                    else
-                        result
                     end
 
                 elsif v.respond_to?(:resolve_names)
@@ -582,7 +582,7 @@ module Syskit
         def self.normalize_selected_object(value, key = nil)
             unless value
                 raise ArgumentError,
-                      "found nil as selection for #{key}, "\
+                      "found nil as selection for #{key}, " \
                       "but it is not an acceptable selection value anymore"
             end
 
@@ -602,15 +602,15 @@ module Syskit
                     value = value.to_instance_requirements
                 elsif key
                     raise ArgumentError,
-                          "found #{value}(of class #{value.class}) as a selection "\
-                          "for #{key}, but only names, component models, "\
-                          "components, data service models and bound data services "\
+                          "found #{value}(of class #{value.class}) as a selection " \
+                          "for #{key}, but only names, component models, " \
+                          "components, data service models and bound data services " \
                           "are allowed"
                 else
                     raise ArgumentError,
-                          "found #{value}(of class #{value.class}) as a selection, "\
-                          "for #{key}, but only names, component models, "\
-                          "components, data service models and bound data services "\
+                          "found #{value}(of class #{value.class}) as a selection, " \
+                          "for #{key}, but only names, component models, " \
+                          "components, data service models and bound data services " \
                           "are allowed"
                 end
             end

@@ -95,8 +95,8 @@ module Syskit
                     assert_same placeholder_m, placeholder_m.concrete_model
                     assert placeholder_m.placeholder?
                 end
-                it "registers the created placeholder model as a submodel "\
-                    "of the component model" do
+                it "registers the created placeholder model as a submodel " \
+                   "of the component model" do
                     placeholder_m = Placeholder.create_for(service_models,
                                                            component_model: component_model)
                     assert task_m.has_submodel?(placeholder_m)

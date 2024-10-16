@@ -126,7 +126,7 @@ module Syskit
             def apply
                 unless future.complete?
                     raise InvalidState,
-                          "attempting to call Async#apply while processing "\
+                          "attempting to call Async#apply while processing " \
                           "is in progress"
                 end
 

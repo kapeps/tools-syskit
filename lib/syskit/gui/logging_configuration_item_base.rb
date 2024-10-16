@@ -33,7 +33,7 @@ module Syskit
                     end
 
                     item2.setter do |value|
-                        @editing_model.method("#{accessor}=".to_sym).call value
+                        @editing_model.method(:"#{accessor}=").call value
                     end
                 end
 

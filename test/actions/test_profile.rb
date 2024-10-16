@@ -9,7 +9,7 @@ module Syskit
     module Actions
         describe Profile do
             describe "#initialize" do
-                it "does not register the profile as a submodel of the Profile "\
+                it "does not register the profile as a submodel of the Profile " \
                    "module by default" do
                     new_profile = Profile.new
                     refute Profile.each_submodel.to_a.include?(new_profile)
@@ -36,13 +36,13 @@ module Syskit
                     assert Profile.each_submodel.to_a.include?(new_profile)
                 end
 
-                it "registers the newly created profile as a constant "\
+                it "registers the newly created profile as a constant " \
                    "on the context module" do
                     new_profile = @context.profile("Test") {}
                     assert_same @context::Test, new_profile
                 end
 
-                it "evaluates the block on an already registered constant with "\
+                it "evaluates the block on an already registered constant with " \
                    "the same name" do
                     test_profile = @context.profile("Test") {}
                     flexmock(Profile).should_receive(:new).never
@@ -114,7 +114,7 @@ module Syskit
                                  dst.test_def.deployment_hints
                 end
 
-                it "uses the existing definition's documentation as documentation "\
+                it "uses the existing definition's documentation as documentation " \
                    "for the imported definition" do
                     task_m = TaskContext.new_submodel
                     src = Profile.new
@@ -129,7 +129,7 @@ module Syskit
                     dst.use_profile src
                 end
 
-                it "does not import definitions that are already existing "\
+                it "does not import definitions that are already existing " \
                    "on the receiver" do
                     task_m = TaskContext.new_submodel
                     src = Profile.new
@@ -141,7 +141,7 @@ module Syskit
                     dst.use_profile src
                 end
 
-                it "pushes selections before defining on the receiver if "\
+                it "pushes selections before defining on the receiver if " \
                    "the model is a composition" do
                     cmp_m = Composition.new_submodel
                     src = Profile.new
@@ -345,7 +345,7 @@ module Syskit
                 assert_same new_remote, remote
             end
 
-            it "gets its cached dependency injection object invalidated "\
+            it "gets its cached dependency injection object invalidated " \
                "when the robot is modified" do
                 profile = Profile.new
                 flexmock(profile)
@@ -434,7 +434,7 @@ module Syskit
                         profile.define "test", task_m
                     end
 
-                    it "applies changes done to the requirement "\
+                    it "applies changes done to the requirement " \
                        "to the generated action model" do
                         d = profile.resolved_definition("test").with_arguments(arg: 10)
                         task = d.to_action_model.instanciate(plan)
@@ -532,7 +532,7 @@ module Syskit
 
             describe "the deployment group interface" do
                 describe "#use_deployment" do
-                    it "selects the deployment for deployment on the "\
+                    it "selects the deployment for deployment on the " \
                        "profile definitions" do
                         task_m = TaskContext.new_submodel(name: "Test")
                         deployment_m = syskit_stub_deployment_model(task_m)
@@ -555,7 +555,7 @@ module Syskit
                         register_ruby_tasks_manager("ruby_tasks")
                     end
 
-                    it "selects the ruby task for deployment "\
+                    it "selects the ruby task for deployment " \
                        "on the profile definitions" do
                         task_m = RubyTaskContext.new_submodel(name: "Test")
 
@@ -576,7 +576,7 @@ module Syskit
                         register_unmanaged_manager("unmanaged_tasks")
                     end
 
-                    it "selects the unmanaged task for deployment "\
+                    it "selects the unmanaged task for deployment " \
                        "on the profile definitions" do
                         task_m = TaskContext.new_submodel(name: "Test")
 
@@ -641,7 +641,7 @@ module Syskit
                 end
 
                 describe "#use_group" do
-                    it "registers the group's deployments for usage on the profile "\
+                    it "registers the group's deployments for usage on the profile " \
                        "definitions" do
                         task_m = TaskContext.new_submodel(name: "Test")
                         deployment_m = syskit_stub_deployment_model(task_m)

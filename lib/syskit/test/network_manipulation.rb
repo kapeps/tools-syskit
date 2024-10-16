@@ -72,8 +72,8 @@ module Syskit
                         writer.writer(**policy)
                     end
                 elsif !writer.respond_to?(:write)
-                    raise ArgumentError, "#{writer} does not seem to be a port "\
-                        "one can write on"
+                    raise ArgumentError, "#{writer} does not seem to be a port " \
+                                         "one can write on"
                 end
                 writer
             end
@@ -398,9 +398,9 @@ module Syskit
 
             # @deprecated use syskit_stub_requirements instead
             def syskit_stub(*args, **options, &block)
-                Roby.warn_deprecated "syskit_stub has been renamed to "\
-                    "syskit_stub_requirements to make the difference with "\
-                    "syskit_stub_network more obvious"
+                Roby.warn_deprecated "syskit_stub has been renamed to " \
+                                     "syskit_stub_requirements to make the difference with " \
+                                     "syskit_stub_network more obvious"
                 syskit_stub_requirements(*args, **options, &block)
             end
 
@@ -506,7 +506,7 @@ module Syskit
                             if info.missing_arguments.empty?
                                 pp.text "is fully instanciated"
                             else
-                                pp.text "missing_arguments: "\
+                                pp.text "missing_arguments: " \
                                         "#{info.missing_arguments.join(', ')}"
                             end
 
@@ -514,9 +514,9 @@ module Syskit
                             if info.precedence.empty?
                                 pp.text "has no should_configure_after constraint"
                             else
-                                pp.text "is waiting for #{info.missing.size} events "\
-                                    "to happen before continuing, among "\
-                                    "#{info.precedence.size}"
+                                pp.text "is waiting for #{info.missing.size} events " \
+                                        "to happen before continuing, among " \
+                                        "#{info.precedence.size}"
                                 pp.nest(2) do
                                     info.missing.each do |ev|
                                         pp.breakable
@@ -578,8 +578,8 @@ module Syskit
                             end
                             raise t.failure_reason if t.failed_to_start?
 
-                            assert t.setup?, "ran the setup for #{t}, but t.setup? "\
-                                "does not return true"
+                            assert t.setup?, "ran the setup for #{t}, but t.setup? " \
+                                             "does not return true"
                             true
                         else
                             t.setup?
@@ -722,8 +722,8 @@ module Syskit
                     end
 
                     if current_pending == pending.size
-                        raise NoStartFixedPoint.new(pending), "cannot start "\
-                            "#{pending.map(&:to_s).join(', ')}"
+                        raise NoStartFixedPoint.new(pending), "cannot start " \
+                                                              "#{pending.map(&:to_s).join(', ')}"
                     end
                 end
 
@@ -733,10 +733,10 @@ module Syskit
 
                 not_started_t = tasks.find { |t| !t.running? }
                 if not_started_t
-                    raise "failed to start #{not_started_t}: "\
-                        "starting=#{not_started_t.starting?} "\
-                        "running=#{not_started_t.running?} "\
-                        "finished=#{not_started_t.finished?}"
+                    raise "failed to start #{not_started_t}: " \
+                          "starting=#{not_started_t.starting?} " \
+                          "running=#{not_started_t.running?} " \
+                          "finished=#{not_started_t.finished?}"
                 end
             ensure
                 if guard

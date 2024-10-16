@@ -75,7 +75,7 @@ describe Syskit::Port do
                 out_task.out_port.connect_to out_task.out_port
             end
         end
-        it "raises SelfConnection if the source and sink are part "\
+        it "raises SelfConnection if the source and sink are part " \
            "of the same component" do
             assert_raises(Syskit::SelfConnection) do
                 out_task.out_port.connect_to out_task.in_port
@@ -228,7 +228,7 @@ describe Syskit::InputWriter do
             achieve { port_reader.ready? }
         end
     end
-    it "queues a PortAccessFailure error on the port's component if creating "\
+    it "queues a PortAccessFailure error on the port's component if creating " \
        "the port failed" do
         error = Class.new(RuntimeError)
         task = syskit_stub_deploy_and_configure(task_m)
@@ -280,7 +280,7 @@ describe Syskit::InputWriter do
             expect_execution.to { achieve { !writer.connected? } }
         end
 
-        it "ensures that the port will not become ready if called "\
+        it "ensures that the port will not become ready if called " \
            "before the resolution starts" do
             task = syskit_stub_deploy_and_configure(task_m)
             writer = task.in_port.writer
@@ -328,7 +328,7 @@ describe Syskit::InputWriter do
                 expect_execution.to { achieve { !orocos_writer.connected? } }
             end
 
-            it "automatically disconnects when the port's actual component "\
+            it "automatically disconnects when the port's actual component " \
                "is finalized" do
                 cmp.remove_child child
 
@@ -390,7 +390,7 @@ describe Syskit::OutputReader do
             achieve { port_reader.ready? }
         end
     end
-    it "queues a PortAccessFailure error on the port's component "\
+    it "queues a PortAccessFailure error on the port's component " \
        "if creating the port failed" do
         error = Class.new(RuntimeError)
         task = syskit_stub_deploy_and_configure(task_m)
@@ -568,7 +568,7 @@ describe Syskit::OutputReader do
             expect_execution.to { achieve { !reader.connected? } }
         end
 
-        it "ensures that the port will not become ready if called before the "\
+        it "ensures that the port will not become ready if called before the " \
            "resolution starts" do
             task = syskit_stub_deploy_and_configure(task_m)
             reader = task.out_port.reader
@@ -616,7 +616,7 @@ describe Syskit::OutputReader do
                 expect_execution.to { achieve { !orocos_reader.connected? } }
             end
 
-            it "automatically disconnects when the port's actual component "\
+            it "automatically disconnects when the port's actual component " \
                "is finalized" do
                 cmp.remove_child child
 

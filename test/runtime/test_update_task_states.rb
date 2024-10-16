@@ -50,7 +50,7 @@ module Syskit
                                 Deployment::STATE_READER_BUFFER_SIZE
                 expected = []
                 expected <<
-                    "got #{state_changes.size} state updates for #{@task}, we might "\
+                    "got #{state_changes.size} state updates for #{@task}, we might " \
                     "have lost some state updates in the process. Received:"
                 state_changes.each { |s| expected << "  #{s}" }
 

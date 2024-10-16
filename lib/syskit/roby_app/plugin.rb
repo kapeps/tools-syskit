@@ -225,7 +225,7 @@ module Syskit
             def syskit_log_transfer_poll_state
                 syskit_log_transfer_process_servers.each do |process_server_config|
                     result = process_server_config.client.log_upload_state
-                    ::Robot.info "#{result.pending_count} log transfers pending or in "\
+                    ::Robot.info "#{result.pending_count} log transfers pending or in " \
                                  "progress from #{process_server_config.name}"
                     result.each_result do |r|
                         if r.success
@@ -414,10 +414,10 @@ module Syskit
 
                 tasks = orogen.self_tasks.each_value.map do |task_def|
                     syskit_model =
-                        if !TaskContext.has_model_for?(task_def)
-                            Syskit::TaskContext.define_from_orogen(task_def, register: true)
-                        else
+                        if TaskContext.has_model_for?(task_def)
                             Syskit::TaskContext.model_for(task_def)
+                        else
+                            Syskit::TaskContext.define_from_orogen(task_def, register: true)
                         end
 
                     syskit_model.configuration_manager.reload
@@ -714,7 +714,7 @@ module Syskit
             def self.create_local_process_server_client(app)
                 unless @server_pid
                     raise ProcessManagers::Remote::Manager::StartupFailed,
-                          "#create_local_process_server_client got called but "\
+                          "#create_local_process_server_client got called but " \
                           "no process server is being started"
                 end
 
@@ -745,8 +745,8 @@ module Syskit
                 # was not one that was still running)
                 if client.server_pid != @server_pid
                     raise ProcessManagers::Remote::Manager::StartupFailed,
-                          "failed to start the local process server. It seems that "\
-                          "there is one still running as PID #{client.server_pid} "\
+                          "failed to start the local process server. It seems that " \
+                          "there is one still running as PID #{client.server_pid} " \
                           "(was expecting #{@server_pid})"
                 end
 

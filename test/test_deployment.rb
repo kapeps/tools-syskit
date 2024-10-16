@@ -360,7 +360,7 @@ module Syskit
                         )
                     end
                     assert_equal \
-                        "there is no registered process server called does_not_exist, "\
+                        "there is no registered process server called does_not_exist, " \
                         "existing servers are: fixture, localhost, stubs",
                         exception.error.message
                 end
@@ -385,21 +385,21 @@ module Syskit
 
                     describe "while enabled on the process server config" do
                         before do
-                            flexmock(@process_server_config)\
+                            flexmock(@process_server_config) \
                                 .should_receive(register_on_name_server?: true)
                         end
 
-                        it "spawns the deployment with name service if "\
+                        it "spawns the deployment with name service if " \
                            "register_on_name_server is true" do
                             flexmock(deployment_task, register_on_name_server: true)
                             expect_registers_on_name_server(true)
                         end
-                        it "spawns the deployment without name service if "\
+                        it "spawns the deployment without name service if " \
                            "register_on_name_server is false" do
                             flexmock(deployment_task, register_on_name_server: false)
                             expect_registers_on_name_server(false)
                         end
-                        it "spawns the deployment with name service if "\
+                        it "spawns the deployment with name service if " \
                            "register_on_name_server is nil" do
                             flexmock(deployment_task, register_on_name_server: nil)
                             expect_registers_on_name_server(true)
@@ -408,21 +408,21 @@ module Syskit
 
                     describe "while disabled on the process server config" do
                         before do
-                            flexmock(@process_server_config)\
+                            flexmock(@process_server_config) \
                                 .should_receive(register_on_name_server?: false)
                         end
 
-                        it "spawns the deployment with name service if "\
+                        it "spawns the deployment with name service if " \
                            "register_on_name_server is true" do
                             flexmock(deployment_task, register_on_name_server: true)
                             expect_registers_on_name_server(true)
                         end
-                        it "spawns the deployment without name service if "\
+                        it "spawns the deployment without name service if " \
                            "register_on_name_server is false" do
                             flexmock(deployment_task, register_on_name_server: false)
                             expect_registers_on_name_server(false)
                         end
-                        it "spawns the deployment without name service if "\
+                        it "spawns the deployment without name service if " \
                            "register_on_name_server is nil" do
                             flexmock(deployment_task, register_on_name_server: nil)
                             expect_registers_on_name_server(false)
@@ -487,7 +487,7 @@ module Syskit
                     end
                 end
 
-                it "does not emit_failed the ready event when the asynchronous part of "\
+                it "does not emit_failed the ready event when the asynchronous part of " \
                    "the ready codepath is interrupted by the stop command" do
                     expect_execution { deployment_task.start! }
                         .join_all_waiting_work(false)
@@ -611,8 +611,8 @@ module Syskit
                     end
                                 .exception
 
-                    assert_equal "expected #{process}'s reported tasks to include "\
-                                 "'mapped_task_name' (mapped from 'task'), but got "\
+                    assert_equal "expected #{process}'s reported tasks to include " \
+                                 "'mapped_task_name' (mapped from 'task'), but got " \
                                  "handles only for invalid_name",
                                  exception.original_exceptions.first.message
                 end
@@ -661,7 +661,7 @@ module Syskit
                     execute { deployment_task.stop! }
                     assert deployment_task.ready_to_die?
                 end
-                it "kills the process gracefully, but does not ask "\
+                it "kills the process gracefully, but does not ask " \
                    "the process server to clean it up" do
                     process.should_receive(:kill).once
                            .with(hard: false).pass_thru
@@ -671,7 +671,7 @@ module Syskit
                             not_emit deployment_task.kill_event
                         end
                 end
-                it "does not attempt to cleanup if some tasks have a representation in "\
+                it "does not attempt to cleanup if some tasks have a representation in " \
                    "the plan" do
                     deployment_task.task("mapped_task_name")
                     orocos_task.should_receive(:rtt_state).never
@@ -684,7 +684,7 @@ module Syskit
                             emit deployment_task.kill_event
                         end
                 end
-                it "does attempt to gracefully shutdown the deployment "\
+                it "does attempt to gracefully shutdown the deployment " \
                    "if present tasks are finished" do
                     task = deployment_task.task("mapped_task_name")
                     syskit_configure_and_start(task)
@@ -697,7 +697,7 @@ module Syskit
                             not_emit deployment_task.kill_event
                         end
                 end
-                it "does not cleanup and hard-kills the process if "\
+                it "does not cleanup and hard-kills the process if " \
                    "the kill event is called" do
                     orocos_task.should_receive(:rtt_state).never
                     orocos_task.should_receive(:cleanup).never
@@ -823,7 +823,7 @@ module Syskit
                 expect_execution { deployment.stop! }
                     .to { emit deployment.stop_event }
             end
-            it "does not register the task on the name server by default, "\
+            it "does not register the task on the name server by default, " \
                "as specified on the process server config" do
                 task = Orocos.allow_blocking_calls { Orocos.name_service.get @task_name }
                 # Check for equality in case we have a leftover from another failed test

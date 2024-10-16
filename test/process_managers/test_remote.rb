@@ -356,7 +356,7 @@ describe Syskit::ProcessManagers::Remote do
             assert_equal killed_names.to_set, @processes.map(&:name).to_set
 
             @processes.all? do |p|
-                Process.wait2(p.pid, ::Process::WNOHANG)
+                Process.wait2(p.pid, Process::WNOHANG)
                 flunk("#{p.pid} has either not been killed or not been reaped")
             rescue Errno::ECHILD
                 assert(true)

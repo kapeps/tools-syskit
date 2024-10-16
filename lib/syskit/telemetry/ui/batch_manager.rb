@@ -48,7 +48,7 @@ module Syskit
 
                         Qt::MessageBox.critical(
                             self, "Syskit Process Batch",
-                            "failed to process batch: #{e.message}, "\
+                            "failed to process batch: #{e.message}, " \
                             "see console output for more details"
                         )
                     end

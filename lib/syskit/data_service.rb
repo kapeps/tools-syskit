@@ -72,7 +72,7 @@ module Syskit
                 unless (service = find_data_service(service))
                     known_services = each_data_service.map(&:name).sort.join(", ")
                     raise ArgumentError,
-                          "#{service} is not a known service of #{self}, "\
+                          "#{service} is not a known service of #{self}, " \
                           "known services are: #{known_services}"
                 end
             elsif !service || service.kind_of?(Syskit::Models::DataServiceModel)
@@ -88,7 +88,7 @@ module Syskit
                 if driver_services.size > 1
                     driver_service_names = driver_services.map(&:name).sort.join(", ")
                     raise ArgumentError,
-                          "#{self} handles more than one device, you must "\
+                          "#{self} handles more than one device, you must " \
                           "specify one of #{driver_service_names} explicitely"
                 end
 
@@ -190,15 +190,15 @@ module Syskit
                     client_in_srv  = dev.combus_client_in_srv
                     client_out_srv = dev.combus_client_out_srv
 
-                    if !combus_m.lazy_dispatch?
+                    if combus_m.lazy_dispatch?
+                        bus_srv = combus.require_dynamic_service_for_device(self, dev)
+                    else
                         unless (bus_srv = find_data_service(dev.name))
                             raise ArgumentError,
-                                  "combus task #{self} was expected to have "\
-                                  "a service named #{dev.name} to connect "\
+                                  "combus task #{self} was expected to have " \
+                                  "a service named #{dev.name} to connect " \
                                   "to the device of the same name, but has none"
                         end
-                    else
-                        bus_srv = combus.require_dynamic_service_for_device(self, dev)
                     end
 
                     client_out_srv.bind(task).connect_to bus_srv if dev.client_to_bus?

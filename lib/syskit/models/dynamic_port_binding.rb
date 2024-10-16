@@ -85,19 +85,19 @@ module Syskit
 
                 unless %i[auto input output].include?(direction)
                     raise ArgumentError,
-                          "'#{direction}' is not a valid value for the 'direction' "\
+                          "'#{direction}' is not a valid value for the 'direction' " \
                           "option. Should be one of :auto, :input or :output"
                 end
 
                 if direction == :auto && !(direction = matcher.try_resolve_direction)
                     raise ArgumentError,
-                          "cannot create a dynamic data source from a matcher "\
+                          "cannot create a dynamic data source from a matcher " \
                           "whose direction cannot be inferred"
                 end
 
                 unless (type = matcher.try_resolve_type)
                     raise ArgumentError,
-                          "cannot create a dynamic data source from a matcher "\
+                          "cannot create a dynamic data source from a matcher " \
                           "whose type cannot be inferred"
                 end
 
@@ -345,7 +345,7 @@ module Syskit
 
                     if @type.length <= args.first
                         ::Kernel.raise ::ArgumentError,
-                                       "element #{args.first} out of bound in "\
+                                       "element #{args.first} out of bound in " \
                                        "an array of #{@type.length}"
                     end
 
@@ -372,7 +372,7 @@ module Syskit
                 def __compound_access(name, args)
                     unless args.empty?
                         ::Kernel.raise ::ArgumentError,
-                                       "expected zero arguments to `#{name}`, "\
+                                       "expected zero arguments to `#{name}`, " \
                                        "got #{args.size}"
                     end
 

@@ -119,7 +119,7 @@ module Syskit
         def self.autodetect_output_modes
             @output_modes = %w{txt svg png dot}
 
-            has_x11_display = ENV["DISPLAY"]
+            has_x11_display = ENV.fetch("DISPLAY", nil)
             unless has_x11_display
                 @default_output_mode = "txt"
             end
@@ -239,11 +239,11 @@ module Syskit
         def self.run
             error = Roby.display_exception do
                 setup_error = setup
-                if !setup_error
+                if setup_error
+                    setup_error
+                else
                     yield
                     nil
-                else
-                    setup_error
                 end
             end
             @last_error = error

@@ -523,7 +523,7 @@ module Syskit
             def process_server_config_for(name)
                 unless (config = process_servers[name])
                     raise UnknownProcessServer,
-                          "there is no registered process server called #{name}, "\
+                          "there is no registered process server called #{name}, " \
                           "existing servers are: #{process_servers.keys.sort.join(', ')}"
                 end
 
@@ -601,22 +601,22 @@ module Syskit
                 logging_enabled: true, register_on_name_server: true
             )
                 Roby.warn_deprecated(
-                    "#{self.class}#connect_to_orocos_process_server is deprecated, "\
+                    "#{self.class}#connect_to_orocos_process_server is deprecated, " \
                     "use register_remote_manager instead"
                 )
 
                 if name_service
                     Roby.warn_deprecated(
-                        "the name_service argument to connect_to_orocos_process_server is "\
+                        "the name_service argument to connect_to_orocos_process_server is " \
                         "unused, and will be removed in the future"
                     )
                 end
 
                 if log_dir || result_dir
                     Syskit.warn(
-                        "specifying log and/or result dir for remote process servers "\
-                        "is deprecated. Use 'syskit process_server' instead of "\
-                        "'orocos_process_server' which will take the log dir "\
+                        "specifying log and/or result dir for remote process servers " \
+                        "is deprecated. Use 'syskit process_server' instead of " \
+                        "'orocos_process_server' which will take the log dir " \
                         "information from the environment/configuration"
                     )
                 end
@@ -662,7 +662,7 @@ module Syskit
 
                 if local_only? && host != "localhost"
                     raise LocalOnlyConfiguration,
-                          "in local only mode, one can only connect to process "\
+                          "in local only mode, one can only connect to process " \
                           "servers on 'localhost' (got #{host})"
                 elsif process_servers[name]
                     raise AlreadyConnected,
@@ -807,7 +807,7 @@ module Syskit
             )
                 if process_servers[name]
                     raise ArgumentError,
-                          "there is already a process server registered as #{name}, "\
+                          "there is already a process server registered as #{name}, " \
                           "call #remove_process_server first"
                 end
 

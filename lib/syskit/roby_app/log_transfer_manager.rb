@@ -104,7 +104,7 @@ module Syskit
 
                     if Time.now > deadline
                         raise Timeout::Error,
-                              "failed to flush all pending file transfers "\
+                              "failed to flush all pending file transfers " \
                               "within #{timeout} seconds"
                     end
 
@@ -126,7 +126,7 @@ module Syskit
                     results[config].concat(state.each_result.to_a)
                     next(false) if state.pending_count == 0
 
-                    ::Robot.info "Waiting for process server at #{c.host} "\
+                    ::Robot.info "Waiting for process server at #{c.host} " \
                                  "to finish uploading"
                     true
                 end

@@ -645,7 +645,7 @@ module Syskit
                 specialized_model = specialized_model(*candidates.first)
                 Models.debug do
                     if specialized_model != composition_model
-                        Models.debug "using specialization #{specialized_model.short_name} "\
+                        Models.debug "using specialization #{specialized_model.short_name} " \
                                      "of #{composition_model.short_name}"
                     end
                     break

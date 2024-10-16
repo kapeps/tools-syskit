@@ -294,7 +294,7 @@ module Syskit
             end
 
             describe "when scheduling tasks for reconfiguration" do
-                it "ensures that the old task is gargabe collected "\
+                it "ensures that the old task is gargabe collected " \
                    "when child of a composition" do
                     task_m = Syskit::TaskContext.new_submodel
                     cmp_m  = Syskit::Composition.new_submodel
@@ -317,7 +317,7 @@ module Syskit
                                  execute { plan.static_garbage_collect.to_set }
                 end
 
-                it "ensures that the old task gets garbage collected when child "\
+                it "ensures that the old task gets garbage collected when child " \
                    "of another still useful task" do
                     child_m  = Syskit::TaskContext.new_submodel
                     parent_m = Syskit::TaskContext.new_submodel
@@ -348,7 +348,7 @@ module Syskit
                                  execute { plan.static_garbage_collect.to_set }
                 end
 
-                it "ensures that the old task gets garbage collected when child "\
+                it "ensures that the old task gets garbage collected when child " \
                    "of a composition, itself child of a useful task" do
                     child_m = Syskit::TaskContext.new_submodel
                     cmp_m = Syskit::Composition.new_submodel
@@ -449,7 +449,7 @@ module Syskit
                     end
                 end
 
-                it "updates an existing deployment, proxying the existing "\
+                it "updates an existing deployment, proxying the existing " \
                    "tasks and creating new ones" do
                     deployment_m = create_deployment_model(task_count: 3)
                     existing_deployment, (task0, task1) =
@@ -634,7 +634,7 @@ module Syskit
                     assert !diff, diff.to_s
                 end
 
-                it "does not change anything if asked to deploy an empty "\
+                it "does not change anything if asked to deploy an empty " \
                    "composition twice" do
                     composition_m = Syskit::Composition.new_submodel(name: "Cmp")
                     cmp1 = syskit_deploy(composition_m)

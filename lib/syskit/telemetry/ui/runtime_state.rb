@@ -82,8 +82,8 @@ module Syskit
                         main = index.data.toString
                         doc = index.data(Qt::UserRole).to_string || ""
                         Qt::Size.new(
-                            [fm.width(main), fm.width(doc)].max + 2 * OUTER_MARGIN,
-                            fm.height * 2 + OUTER_MARGIN * 2 + INTERLINE
+                            [fm.width(main), fm.width(doc)].max + (2 * OUTER_MARGIN),
+                            (fm.height * 2) + (OUTER_MARGIN * 2) + INTERLINE
                         )
                     end
 
@@ -101,7 +101,7 @@ module Syskit
 
                         fm = option.font_metrics
                         painter.draw_text(
-                            Qt::Rect.new(option.rect.x + OUTER_MARGIN, option.rect.y + OUTER_MARGIN, option.rect.width - 2 * OUTER_MARGIN, fm.height),
+                            Qt::Rect.new(option.rect.x + OUTER_MARGIN, option.rect.y + OUTER_MARGIN, option.rect.width - (2 * OUTER_MARGIN), fm.height),
                             Qt::AlignLeft, main, text_bounds
                         )
 
@@ -109,7 +109,7 @@ module Syskit
                         font.italic = true
                         painter.font = font
                         painter.draw_text(
-                            Qt::Rect.new(option.rect.x + OUTER_MARGIN, text_bounds.bottom + INTERLINE, option.rect.width - 2 * OUTER_MARGIN, fm.height),
+                            Qt::Rect.new(option.rect.x + OUTER_MARGIN, text_bounds.bottom + INTERLINE, option.rect.width - (2 * OUTER_MARGIN), fm.height),
                             Qt::AlignLeft, doc, text_bounds
                         )
                     ensure
@@ -151,7 +151,7 @@ module Syskit
                             w.show
                             w.update(*args)
                         else
-                            puts "don't know what to do with UI event #{event_name}, "\
+                            puts "don't know what to do with UI event #{event_name}, " \
                                  "known events: #{@ui_event_widgets}"
                         end
                     end

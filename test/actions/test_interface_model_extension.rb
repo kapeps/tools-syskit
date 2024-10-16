@@ -321,12 +321,12 @@ describe Syskit::Actions::InterfaceModelExtension do
             @action_m.use_profile profile_m
         end
 
-        it "returns an used profile's tag model when accessed with _tag "\
+        it "returns an used profile's tag model when accessed with _tag " \
            "at the model level" do
             assert @action_m.t_tag.fullfills?(@srv_m)
         end
 
-        it "returns an used profile's tag model when accessed with _tag "\
+        it "returns an used profile's tag model when accessed with _tag " \
            "at the instance level" do
             assert @action_m.new(plan).t_tag.fullfills?(@srv_m)
         end

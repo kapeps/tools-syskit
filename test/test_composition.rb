@@ -260,8 +260,8 @@ describe Syskit::Composition do
             cmp.remove_child cmp.test_child
             assert_equal Set[task, grandchild], dataflow_graph.modified_tasks.to_set
         end
-        it "handles a child that is connected to the composition through "\
-            "a non-forwarding connection" do
+        it "handles a child that is connected to the composition through " \
+           "a non-forwarding connection" do
             provider_srv_m = Syskit::DataService.new_submodel do
                 output_port "out", "/double"
             end

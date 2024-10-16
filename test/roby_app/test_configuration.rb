@@ -78,7 +78,7 @@ describe Syskit::RobyApp::Configuration do
             @available_typekit_names = []
             @available_deployment_names = ["deployment"]
 
-            set_log_level ::Robot, Logger::FATAL + 1
+            set_log_level Robot, Logger::FATAL + 1
             set_log_level Syskit::ProcessManagers::Remote::Server, Logger::FATAL + 1
         end
 
@@ -175,7 +175,7 @@ describe Syskit::RobyApp::Configuration do
         end
 
         describe "#max_upload_rate_for" do
-            it "returns the default rate if the max_upload_rates hash "\
+            it "returns the default rate if the max_upload_rates hash " \
                "has no entry for the given server" do
                 default = flexmock
                 @log_transfer.default_max_upload_rate = default

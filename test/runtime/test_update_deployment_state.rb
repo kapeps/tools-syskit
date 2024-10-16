@@ -88,7 +88,7 @@ module Syskit
 
                     flexmock(Runtime)
                         .should_receive(:find_all_not_ready_deployments)
-                        .and_return({ "fixture": [d1, d2] })
+                        .and_return({ fixture: [d1, d2] })
                     flexmock(Syskit.conf)
                         .should_receive(:process_server_config_for)
                         .and_return(process_server_config)
@@ -109,7 +109,7 @@ module Syskit
 
                     flexmock(Runtime)
                         .should_receive(:find_all_not_ready_deployments)
-                        .and_return({ "fixture": [d1, d2] })
+                        .and_return({ fixture: [d1, d2] })
                     flexmock(Syskit.conf)
                         .should_receive(:process_server_config_for)
                         .and_return(process_server_config)
@@ -118,7 +118,7 @@ module Syskit
                     Runtime.update_deployment_states(plan)
                 end
 
-                it "ignores the deployment when it hasnt received a result from "\
+                it "ignores the deployment when it hasnt received a result from " \
                    "wait running" do
                     client_mock = flexmock(process_server_config.client)
                     d1 = mocked_deployment(
@@ -127,12 +127,12 @@ module Syskit
 
                     flexmock(Runtime)
                         .should_receive(:find_all_not_ready_deployments)
-                        .and_return({ "fixture": [d1] })
+                        .and_return({ fixture: [d1] })
                     flexmock(Syskit.conf)
                         .should_receive(:process_server_config_for)
                         .and_return(process_server_config)
                     client_mock.should_receive(:wait_running)
-                               .and_return({ "first_process": nil })
+                               .and_return({ first_process: nil })
                     flexmock(d1.ready_event).should_receive(:emit_failed).never
                     flexmock(d1).should_receive(:update_remote_tasks).never
                     Runtime.update_deployment_states(plan)
@@ -147,7 +147,7 @@ module Syskit
 
                     flexmock(Runtime)
                         .should_receive(:find_all_not_ready_deployments)
-                        .and_return({ "fixture": [d1] })
+                        .and_return({ fixture: [d1] })
                     flexmock(Syskit.conf)
                         .should_receive(:process_server_config_for)
                         .and_return(process_server_config)

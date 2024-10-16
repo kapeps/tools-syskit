@@ -62,10 +62,8 @@ module Syskit
                 end
 
                 if pattern = external_objects
-                    file = pattern % kind + ".svg"
-                    File.open(file, "w") do |io|
-                        io.write(svg)
-                    end
+                    file = (pattern % kind) + ".svg"
+                    File.write(file, svg)
                     push(title, "<object data=\"#{file}\" type=\"image/svg+xml\"></object>",
                          id: id, buttons: buttons)
                 else

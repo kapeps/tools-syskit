@@ -61,7 +61,7 @@ module Syskit
                         expected = Hash[
                             "name" => "test_deployment",
                             "project_name" => "test",
-                            "tasks" => Array[
+                            "tasks" => [
                                 Hash["task_name" => "test_task", "task_model_name" => "test::Task"]
                             ],
                             "default_deployment_for" => nil,

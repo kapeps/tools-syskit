@@ -86,8 +86,8 @@ module Syskit
                                  group.find_all_deployments_from_process_manager("test-mng")
                 end
 
-                it "raises if the receiver and argument have clashing task names "\
-                    "and leaves the receiver as-is" do
+                it "raises if the receiver and argument have clashing task names " \
+                   "and leaves the receiver as-is" do
                     clash = other_group.use_deployment(Hash[deployment_m => "self_"],
                                                        on: "test-mng", process_managers: conf, loader: loader).first
                     flexmock(self_deployment).should_receive(:==)
@@ -226,8 +226,8 @@ module Syskit
                     end
                 end
 
-                it "raises TaskNameAlreadyInUse if a task of this deployment's "\
-                    "uses an existing name from another deployment" do
+                it "raises TaskNameAlreadyInUse if a task of this deployment's " \
+                   "uses an existing name from another deployment" do
                     group.register_configured_deployment(
                         ConfiguredDeployment.new("test", deployment_m,
                                                  Hash["task" => "task"])
@@ -426,8 +426,8 @@ module Syskit
                         )
                     end
                     assert_equal(
-                        "#{[/wrong_name/]} is not a valid deployed task name or "\
-                        "pattern. The valid deployed task names are "\
+                        "#{[/wrong_name/]} is not a valid deployed task name or " \
+                        "pattern. The valid deployed task names are " \
                         "[\"test_task_name\"].", e.message
                     )
                 end
@@ -508,8 +508,8 @@ module Syskit
                         @group.use_unmanaged_task(Hash[cmp_m => "name"],
                                                   process_managers: @conf)
                     end
-                    assert_equal "expected a mapping from a task context model to "\
-                        "a name, but got #{cmp_m}", e.message
+                    assert_equal "expected a mapping from a task context model to " \
+                                 "a name, but got #{cmp_m}", e.message
                 end
                 it "raises if the model is a RubyTaskContext" do
                     task_m = Syskit::RubyTaskContext.new_submodel
@@ -517,8 +517,8 @@ module Syskit
                         @group.use_unmanaged_task(Hash[task_m => "name"],
                                                   process_managers: @conf)
                     end
-                    assert_equal "expected a mapping from a task context model to "\
-                        "a name, but got #{task_m}", e.message
+                    assert_equal "expected a mapping from a task context model to " \
+                                 "a name, but got #{task_m}", e.message
                 end
                 it "sets the configured deployment as read_only" do
                     configured_deployment = group.use_unmanaged_task(
@@ -577,8 +577,8 @@ module Syskit
                         )
                     end
                     assert_equal(
-                        "#{[/invalid_test_name/]} is not a valid deployed task name or "\
-                        "pattern. The valid deployed task names are "\
+                        "#{[/invalid_test_name/]} is not a valid deployed task name or " \
+                        "pattern. The valid deployed task names are " \
                         "[\"test_task\"].", e.message
                     )
                 end
@@ -659,8 +659,8 @@ module Syskit
                     assert expected[actual]
                 end
 
-                it "overrides the process server with the stub process server "\
-                    "if simulation? is true" do
+                it "overrides the process server with the stub process server " \
+                   "if simulation? is true" do
                     expected = lambda do |configured_deployment|
                         assert_equal "test-mng-sim", configured_deployment
                             .process_server_name
@@ -675,8 +675,8 @@ module Syskit
                     assert expected[actual]
                 end
 
-                it "sets an identity name mapping for deployments that "\
-                    "are not prefixed" do
+                it "sets an identity name mapping for deployments that " \
+                   "are not prefixed" do
                     deployment_m.orogen_model.task "task", task_m.orogen_model
                     configured_deployment = group.use_deployment(deployment_m,
                                                                  on: "test-mng", process_managers: conf, loader: loader).first
@@ -689,8 +689,8 @@ module Syskit
                     e = assert_raises(ArgumentError) do
                         @group.use_deployment cmp_m => "task"
                     end
-                    assert_equal "only deployment and task context models can be "\
-                        "deployed by use_deployment, got #{cmp_m}", e.message
+                    assert_equal "only deployment and task context models can be " \
+                                 "deployed by use_deployment, got #{cmp_m}", e.message
                 end
 
                 it "raises if the given model is a RubyTaskContext" do
@@ -698,8 +698,8 @@ module Syskit
                     e = assert_raises(ArgumentError) do
                         @group.use_deployment task_m => "task"
                     end
-                    assert_equal "only deployment and task context models can be "\
-                        "deployed by use_deployment, got #{task_m}", e.message
+                    assert_equal "only deployment and task context models can be " \
+                                 "deployed by use_deployment, got #{task_m}", e.message
                 end
 
                 it "raises if the task has no default deployment" do
@@ -708,7 +708,7 @@ module Syskit
                     end
                 end
 
-                it "does not raise if the same deployment is configured "\
+                it "does not raise if the same deployment is configured " \
                    "with a different mapping" do
                     deployment1_m = stub_deployment "deployment1"
                     @group.use_deployment deployment1_m
@@ -738,18 +738,18 @@ module Syskit
                         @group.use_deployment "does_not_exist",
                                               on: "test", process_managers: @conf
                     end
-                    assert_equal "does_not_exist is neither a task model "\
-                        "nor a deployment name", e.message
+                    assert_equal "does_not_exist is neither a task model " \
+                                 "nor a deployment name", e.message
                 end
-                it "raises TaskNameRequired if passing a task model "\
-                    "without giving an explicit name" do
+                it "raises TaskNameRequired if passing a task model " \
+                   "without giving an explicit name" do
                     e = assert_raises(Syskit::TaskNameRequired) do
                         @group.use_deployment(@task_m,
                                               on: "test", process_managers: @conf)
                     end
-                    assert_equal "you must provide a task name when starting "\
-                        "a component by type, as e.g. use_deployment "\
-                        "OroGen.xsens_imu.Task => 'imu'",
+                    assert_equal "you must provide a task name when starting " \
+                                 "a component by type, as e.g. use_deployment " \
+                                 "OroGen.xsens_imu.Task => 'imu'",
                                  e.message
                 end
                 it "sets the configured deployment as read_only" do
@@ -813,8 +813,8 @@ module Syskit
                         )
                     end
                     assert_equal(
-                        "#{[/invalid_task_name/]} is not a valid deployed task name or "\
-                        "pattern. The valid deployed task names are "\
+                        "#{[/invalid_task_name/]} is not a valid deployed task name or " \
+                        "pattern. The valid deployed task names are " \
                         "[\"test_task_name\"].", e.message
                     )
                 end

@@ -373,8 +373,8 @@ describe Syskit::InstanceRequirements do
             assert_raises(ArgumentError) { req.select_service(task_m.srv_srv) }
         end
 
-        it "accepts selecting services from placeholder tasks "\
-           "if the set of models in the task matches the set of models "\
+        it "accepts selecting services from placeholder tasks " \
+           "if the set of models in the task matches the set of models " \
            "in the instance requirements" do
             srv_m  = Syskit::DataService.new_submodel
             task_m = srv_m.placeholder_model

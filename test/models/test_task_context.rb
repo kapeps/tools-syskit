@@ -632,8 +632,8 @@ module Syskit # :nodoc:
                 refute task_m.use_update_properties?
             end
 
-            it "ignores an update_properties methods defined by a module injected in "\
-            "the hierarchy" do
+            it "ignores an update_properties methods defined by a module injected in " \
+               "the hierarchy" do
                 task_m = TaskContext.new_submodel
                 task_m.class_eval { def configure; end }
                 mod = Module.new { def update_properties; end }
@@ -647,8 +647,8 @@ module Syskit # :nodoc:
                 assert task_m.use_update_properties?
             end
 
-            it "returns true if the submodel defines both #configure and "\
-            "#update_properties" do
+            it "returns true if the submodel defines both #configure and " \
+               "#update_properties" do
                 task_m = TaskContext.new_submodel
                 task_m.class_eval do
                     def update_properties; end

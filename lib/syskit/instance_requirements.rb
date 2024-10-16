@@ -202,15 +202,15 @@ module Syskit
 
         # @deprecated use {#bind} instead
         def resolve(object)
-            Roby.warn_deprecated "#{__method__} is deprecated, use "\
-                "InstanceRequirements#bind instead"
+            Roby.warn_deprecated "#{__method__} is deprecated, use " \
+                                 "InstanceRequirements#bind instead"
             bind(object)
         end
 
         # @deprecated use {#try_bind} instead
         def try_resolve(task)
-            Roby.warn_deprecated "#{__method__} is deprecated, use "\
-                "InstanceRequirements#try_bind instead"
+            Roby.warn_deprecated "#{__method__} is deprecated, use " \
+                                 "InstanceRequirements#try_bind instead"
             try_bind(task)
         end
 
@@ -693,8 +693,8 @@ module Syskit
             deprecated_from_kw ||= Roby.sanitize_keywords(arguments)
             if deprecated_arguments || !deprecated_from_kw.empty?
                 Roby.warn_deprecated(
-                    "InstanceRequirements#with_arguments: providing arguments using "\
-                    "a string is not supported anymore use key: value instead of "\
+                    "InstanceRequirements#with_arguments: providing arguments using " \
+                    "a string is not supported anymore use key: value instead of " \
                     "'key' => value"
                 )
                 deprecated_arguments&.each { |key, arg| arguments[key.to_sym] = arg }
@@ -1037,10 +1037,10 @@ module Syskit
         end
 
         def pretty_print(pp)
-            if model != base_model
-                pp.text "#{model}(from #{base_model})"
-            else
+            if model == base_model
                 pp.text model.to_s
+            else
+                pp.text "#{model}(from #{base_model})"
             end
             pp.nest(2) do
                 unless pushed_selections.empty?
@@ -1063,7 +1063,7 @@ module Syskit
             return enum_for(__method__) unless block_given?
 
             unless composition_model?
-                raise "cannot call #each_child on #{self} as it does not "\
+                raise "cannot call #each_child on #{self} as it does not " \
                       "represent a composition model"
             end
 

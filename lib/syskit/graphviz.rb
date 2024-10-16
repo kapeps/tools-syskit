@@ -105,8 +105,8 @@ module Syskit
         end
 
         def escape_dot_uri(string)
-            string.gsub(/</, "&lt;")
-                  .gsub(/>/, "&gt;")
+            string.gsub("<", "&lt;")
+                  .gsub(">", "&gt;")
         end
 
         def escape_dot(string)
@@ -221,7 +221,7 @@ module Syskit
                     pattern = "syskit_graphviz_%i.dot"
                     i += 1 while File.file?(format(pattern, i))
                     path = format(pattern, i)
-                    File.open(path, "w") { |io| io.write send(kind, display_options) }
+                    File.write(path, send(kind, display_options))
                     "saved graphviz input in #{path}"
                 end
                 raise DotFailedError, "dot reported an error generating the graph"
@@ -278,7 +278,7 @@ module Syskit
                         label << "#{key}=#{format_edge_info(edge_info[key])}"
                     end
                     all_tasks << child_task
-                    result << "  #{task.dot_id} #{dot_edge_mark} "\
+                    result << "  #{task.dot_id} #{dot_edge_mark} " \
                               "#{child_task.dot_id} [label=\"#{label.join('\n')}\"];"
                 end
             end
@@ -286,8 +286,8 @@ module Syskit
             all_tasks.each do |task|
                 attributes = []
                 task_label = format_task_label(task)
-                label = format('  <TABLE ALIGN="LEFT" COLOR="white" BORDER="1" '\
-                               'CELLBORDER="0" CELLSPACING="0">'\
+                label = format('  <TABLE ALIGN="LEFT" COLOR="white" BORDER="1" ' \
+                               'CELLBORDER="0" CELLSPACING="0">' \
                                "%<task_label>s</TABLE>", task_label: task_label)
                 attributes << "label=<#{label}>"
                 attributes << "href=\"plan://syskit/#{task.dot_id}\"" if make_links?
@@ -543,8 +543,8 @@ module Syskit
                 if deployment
                     result << "  subgraph cluster_#{deployment.dot_id} {"
                     task_label, = format_task_label(deployment, task_colors)
-                    label = '  <TABLE ALIGN="LEFT" COLOR="white" BORDER="1"'\
-                            ' CELLBORDER="0" CELLSPACING="0">'\
+                    label = '  <TABLE ALIGN="LEFT" COLOR="white" BORDER="1" ' \
+                            'CELLBORDER="0" CELLSPACING="0">' \
                             "#{task_label}</TABLE>"
                     result << "      label=< #{label} >;"
                 end
@@ -606,7 +606,7 @@ module Syskit
                 end
 
                 raise ArgumentError,
-                      "don't know how to generate a dot ID for #{object} "\
+                      "don't know how to generate a dot ID for #{object} " \
                       "in context #{context}"
             end
         end
@@ -635,10 +635,10 @@ module Syskit
             end
 
             task_label, = format_task_label(task)
-            task_label = '  <TABLE ALIGN="LEFT" COLOR="white" BORDER="1" '\
-                         'CELLBORDER="0" CELLSPACING="0">'\
+            task_label = '  <TABLE ALIGN="LEFT" COLOR="white" BORDER="1" ' \
+                         'CELLBORDER="0" CELLSPACING="0">' \
                          "#{task_label}</TABLE>"
-            result << "    label#{task.dot_id} [#{task_link},shape=none,"\
+            result << "    label#{task.dot_id} [#{task_link},shape=none," \
                       "label=< #{task_label} >];"
 
             unless input_ports.empty?
@@ -692,8 +692,8 @@ module Syskit
                 values = values.map { |v| v.tr("<>", "[]") }
                 values = values.map { |v| v.tr("{}", "[]") }
 
-                "<TR><TD ROWSPAN=\"#{values.size}\" VALIGN=\"TOP\" "\
-                "ALIGN=\"RIGHT\">#{category}</TD><TD ALIGN=\"LEFT\">"\
+                "<TR><TD ROWSPAN=\"#{values.size}\" VALIGN=\"TOP\" " \
+                "ALIGN=\"RIGHT\">#{category}</TD><TD ALIGN=\"LEFT\">" \
                 "#{values.first}</TD></TR>\n" +
                 values[1..-1].map { |v| "<TR><TD ALIGN=\"LEFT\">#{v}</TD></TR>" }.join("\n")
             end.flatten

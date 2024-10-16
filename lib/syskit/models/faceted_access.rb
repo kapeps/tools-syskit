@@ -45,10 +45,10 @@ module Syskit
 
             def find_data_service_from_type(type)
                 srv = required.find_data_service_from_type(type)
-                if !required.each_required_model.to_a.include?(srv.model)
-                    find_data_service(srv.name)
-                else
+                if required.each_required_model.to_a.include?(srv.model)
                     srv
+                else
+                    find_data_service(srv.name)
                 end
             end
 

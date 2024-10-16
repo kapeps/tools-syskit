@@ -14,7 +14,7 @@ module Syskit::GUI
             attr_reader :specializations, :task_model_view
 
             def initialize(page)
-                super(page)
+                super
                 @specializations = {}
                 @task_model_view = Roby::GUI::ModelViews::Task.new(page)
             end

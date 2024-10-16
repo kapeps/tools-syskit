@@ -14,7 +14,7 @@ module Syskit
         include ::YARD
 
         def self.syskit_doc_output_path
-            if !@syskit_doc_output_path && (env = ENV["SYSKIT_DOC_OUTPUT_PATH"])
+            if !@syskit_doc_output_path && (env = ENV.fetch("SYSKIT_DOC_OUTPUT_PATH", nil))
                 @syskit_doc_output_path = Pathname.new(env)
             end
 

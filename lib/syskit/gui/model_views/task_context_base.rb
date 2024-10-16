@@ -6,7 +6,7 @@ module Syskit::GUI
             attr_reader :orogen_rendering, :task_model_view
 
             def initialize(page)
-                super(page)
+                super
                 @task_model_view = Roby::GUI::ModelViews::Task.new(page)
                 @orogen_rendering = OroGen::HTML::TaskContext.new(page)
                 buttons = []

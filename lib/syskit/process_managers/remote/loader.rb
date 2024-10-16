@@ -30,7 +30,7 @@ module Syskit
                     end
 
                     raise OroGen::ProjectNotFound,
-                          "#{client} has no project called #{name}, "\
+                          "#{client} has no project called #{name}, " \
                           "available projects: #{available_projects.keys.sort.join(', ')}"
                 end
 

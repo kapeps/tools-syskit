@@ -873,7 +873,7 @@ describe Syskit::Models::Component do
                 end
             end
 
-            it "raises if given an explicit port mapping "\
+            it "raises if given an explicit port mapping " \
                "with an invalid component port" do
                 stub_t = self.stub_t
                 component = Syskit::TaskContext.new_submodel do

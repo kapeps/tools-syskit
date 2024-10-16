@@ -89,7 +89,7 @@ module Syskit
                         return if flag == @use_global_loader
 
                         raise ArgumentError,
-                              "cannot change use_global_loader after the loader has "\
+                              "cannot change use_global_loader after the loader has " \
                               "been created"
                     end
 

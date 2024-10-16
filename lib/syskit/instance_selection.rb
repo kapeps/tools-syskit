@@ -147,15 +147,15 @@ module Syskit
             mappings = {}
             service_selection.each do |req_m, sel_m|
                 mappings.merge!(sel_m.port_mappings_for(req_m)) do |req_name, sel_name1, sel_name2|
-                    if sel_name1 != sel_name2
+                    if sel_name1 == sel_name2
+                        sel_name1
+                    else
                         # need to find who has the same port ...
                         service_selection.each_key do |other_m|
                             if req_m.has_port?(req_name)
                                 raise AmbiguousPortMappings.new(other_m, req_m, req_name)
                             end
                         end
-                    else
-                        sel_name1
                     end
                 end
             end

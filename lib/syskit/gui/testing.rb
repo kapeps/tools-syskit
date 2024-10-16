@@ -256,7 +256,7 @@ module Syskit
                 item.each_test_result do |r|
                     name = "#{r.test_case_name}::#{r.test_name}"
                     info = format(
-                        "#{r.skip_count} skips, #{r.failure_count} failures "\
+                        "#{r.skip_count} skips, #{r.failure_count} failures " \
                         "and #{r.assertions} assertions executed in %<duration>.3fs",
                         duration: r.time
                     )
@@ -269,9 +269,9 @@ module Syskit
                     color = SubprocessItem.html_color(color)
                     style = "padding: .1em; background-color: #{color}"
                     test_result_page.push(
-                        nil, "<div class=\"test_result\" style=\"#{style}\">"\
-                             "#{MetaRuby::GUI::HTML.escape_html(name)}: "\
-                             "#{MetaRuby::GUI::HTML.escape_html(info)}"\
+                        nil, "<div class=\"test_result\" style=\"#{style}\">" \
+                             "#{MetaRuby::GUI::HTML.escape_html(name)}: " \
+                             "#{MetaRuby::GUI::HTML.escape_html(info)}" \
                              "</div>"
                     )
                     all_exceptions = r.failures.flat_map do |e|
@@ -354,9 +354,9 @@ module Syskit
                              end
                 status_label.update_state(
                     state_name,
-                    text: "#{stats.executed_count} of #{stats.test_count} test files "\
-                          "executed, #{stats.run_count} runs, #{stats.skip_count} "\
-                          "skips, #{stats.failure_count} failures and "\
+                    text: "#{stats.executed_count} of #{stats.test_count} test files " \
+                          "executed, #{stats.run_count} runs, #{stats.skip_count} " \
+                          "skips, #{stats.failure_count} failures and " \
                           "#{stats.assertions_count} assertions"
                 )
             end
@@ -497,19 +497,19 @@ module Syskit
                 def status_text
                     text = []
                     if has_tested?
-                        text << "#{test_results.size} runs, #{exception_count} "\
-                                "exceptions, #{failure_count} failures and "\
+                        text << "#{test_results.size} runs, #{exception_count} " \
+                                "exceptions, #{failure_count} failures and " \
                                 "#{assertions_count} assertions"
                     end
 
                     return text unless slave_exit_status && !slave_exit_status.success?
 
                     if slave_exit_status.signaled?
-                        text << "Test process terminated with signal "\
+                        text << "Test process terminated with signal " \
                                 "#{slave_exit_status.termsig}"
                     elsif slave_exit_status.exitstatus != 1 || !has_tested? ||
                           (exception_count == 0 && failure_count == 0)
-                        text << "Test process finished with exit code "\
+                        text << "Test process finished with exit code " \
                                 "#{slave_exit_status.exitstatus}"
                     end
                     text

@@ -324,7 +324,7 @@ module Syskit
 
             abstract_tasks.each do |task, (parents, candidates)|
                 pp.breakable
-                pp.text task.to_s.gsub(/Syskit::/, "").to_s
+                pp.text task.to_s.gsub("Syskit::", "").to_s
                 pp.nest(2) do
                     pp.breakable
                     if candidates
@@ -343,7 +343,7 @@ module Syskit
                     pp.breakable
                     pp.seplist(parents) do |parent|
                         role, parent = parent
-                        pp.text "child #{role.to_a.first} of #{parent.to_s.gsub(/Syskit::/, '')}"
+                        pp.text "child #{role.to_a.first} of #{parent.to_s.gsub('Syskit::', '')}"
                     end
                 end
             end
@@ -406,13 +406,13 @@ module Syskit
                 candidates = self.candidates[task]
 
                 pp.breakable
-                pp.text "for #{task.to_s.gsub(/Syskit::/, '')}"
+                pp.text "for #{task.to_s.gsub('Syskit::', '')}"
                 pp.nest(2) do
                     unless parents.empty?
                         pp.breakable
                         pp.seplist(parents) do |parent|
                             role, parent = parent
-                            pp.text "child #{role.to_a.first} of #{parent.to_s.gsub(/Syskit::/, '')}"
+                            pp.text "child #{role.to_a.first} of #{parent.to_s.gsub('Syskit::', '')}"
                         end
                     end
 
@@ -552,8 +552,8 @@ module Syskit
                         orogen_model = deployed_task.configured_deployment
                                                     .orogen_model
                         pp.text(
-                            "task #{deployed_task.mapped_task_name} from deployment "\
-                            "#{orogen_model.name} defined in "\
+                            "task #{deployed_task.mapped_task_name} from deployment " \
+                            "#{orogen_model.name} defined in " \
                             "#{orogen_model.project.name} on #{process_server_name}"
                         )
                         pp.nest(2) do
@@ -679,10 +679,10 @@ module Syskit
         def initialize(missing_names)
             super()
             @missing_names =
-                if !missing_names.respond_to?(:each)
-                    [missing_names]
-                else
+                if missing_names.respond_to?(:each)
                     missing_names.to_a
+                else
+                    [missing_names]
                 end
         end
 
@@ -861,7 +861,7 @@ module Syskit
         end
 
         def pretty_print(pp)
-            pp.text "cannot connect output port #{source} to input port #{sink}: "\
+            pp.text "cannot connect output port #{source} to input port #{sink}: " \
                     "data types mismatch (resp. #{source.type} and #{sink.type})"
         end
     end

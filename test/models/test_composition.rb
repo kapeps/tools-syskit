@@ -752,8 +752,8 @@ describe Syskit::Models::Composition do
 
         # This is a very specific test because it is a regression test
         # The existence of connections is what triggers the bug
-        it "(regression) injects children tasks into children compositions using "\
-            "child objects within overloaded models, and with existing connections" do
+        it "(regression) injects children tasks into children compositions using " \
+           "child objects within overloaded models, and with existing connections" do
             srv_m = Syskit::DataService.new_submodel { output_port "out", "/double" }
             task_m = Syskit::TaskContext.new_submodel do
                 output_port "out", "/double"

@@ -69,8 +69,8 @@ module Syskit
                 until available_space >= free_space_delete_until
                     files = @target_dir.each_child.select(&:file?)
                     if files.empty?
-                        Roby.warn "Cannot erase files: the folder is empty but the "\
-                        "available space is smaller than the threshold."
+                        Roby.warn "Cannot erase files: the folder is empty but the " \
+                                  "available space is smaller than the threshold."
                         break
                     end
 
@@ -244,7 +244,7 @@ module Syskit
             # Write necessary padding (tar requires multiples of 512 bytes)
             def self.write_padding(size, io)
                 # Move to end, compute actual size, pad to 512 bytes blocks
-                remainder = (size + 511) / 512 * 512 - size
+                remainder = ((size + 511) / 512 * 512) - size
                 io.write("\0" * remainder)
             end
 

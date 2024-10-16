@@ -207,7 +207,7 @@ module Syskit
                     elsif bus_to_client
                         bus_m::ClientInSrv
                     else
-                        raise ArgumentError, "at least one of client_to_bus or "\
+                        raise ArgumentError, "at least one of client_to_bus or " \
                                              "bus_to_client need to be true"
                     end
 

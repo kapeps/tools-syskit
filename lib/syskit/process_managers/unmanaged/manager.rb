@@ -118,7 +118,7 @@ module Syskit
                             dead_processes[process] = Status.new(true)
                         rescue Exception => e # rubocop:disable Lint/RescueException
                             process.fatal(
-                                "assuming #{process} died because the background "\
+                                "assuming #{process} died because the background " \
                                 "thread died with"
                             )
                             Roby.log_exception(e, process, :fatal)

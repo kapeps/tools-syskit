@@ -56,22 +56,22 @@ module Syskit
 
             # @deprecated use {#try_resolve_and_bind_child} instead
             def try_resolve_child(task)
-                Roby.warn_deprecated "#{__method__} is deprecated, use "\
-                    "CompositionChild#try_resolve_and_bind_child instead"
+                Roby.warn_deprecated "#{__method__} is deprecated, use " \
+                                     "CompositionChild#try_resolve_and_bind_child instead"
                 try_resolve_and_bind_child(task)
             end
 
             # @deprecated use {#try_resolve_and_bind_child_recursive} instead
             def try_resolve_child_recursive(root)
-                Roby.warn_deprecated "#{__method__} is deprecated, use "\
-                    "CompositionChild#try_resolve_and_bind_child_recursive instead"
+                Roby.warn_deprecated "#{__method__} is deprecated, use " \
+                                     "CompositionChild#try_resolve_and_bind_child_recursive instead"
                 try_resolve_and_bind_child_recursive(root)
             end
 
             # @deprecated use {#resolve_and_bind_child} instead
             def resolve_child(task)
-                Roby.warn_deprecated "#{__method__} is deprecated, "\
-                    "use #resolve_and_bind_child instead"
+                Roby.warn_deprecated "#{__method__} is deprecated, " \
+                                     "use #resolve_and_bind_child instead"
                 resolve_and_bind_child(task)
             end
 
@@ -172,7 +172,7 @@ module Syskit
                     # "right" child, and that it is actually compatible with
                     # the child model
                     bind_resolve_parent(component_or_service.component)
-                    super(component_or_service)
+                    super
                 else
                     parent = bind_resolve_parent(component_or_service)
                     resolve_and_bind_child(composition_model.bind(parent))
@@ -193,12 +193,12 @@ module Syskit
 
                 if compositions.empty?
                     raise ArgumentError,
-                          "cannot bind #{self} to #{component}: it is not the child "\
+                          "cannot bind #{self} to #{component}: it is not the child " \
                           "of any #{composition_model} composition"
                 else
                     raise ArgumentError,
-                          "cannot bind #{self} to #{component}: it is the child of "\
-                          "one or more #{composition_model} compositions, but not "\
+                          "cannot bind #{self} to #{component}: it is the child of " \
+                          "one or more #{composition_model} compositions, but not " \
                           "with the role '#{child_name}'"
                 end
             end

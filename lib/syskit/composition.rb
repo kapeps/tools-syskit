@@ -51,8 +51,8 @@ module Syskit
 
             if names.size != 1
                 raise ArgumentError,
-                      "unlike with ConfigurationManager, only one configuration can "\
-                      "be selected on compositions. Attempted to select #{names} on "\
+                      "unlike with ConfigurationManager, only one configuration can " \
+                      "be selected on compositions. Attempted to select #{names} on " \
                       "#{self}"
             end
 
@@ -66,13 +66,13 @@ module Syskit
             unless found_something
                 if names == ["default"]
                     ConfigurationManager.info \
-                        "required default configuration on composition #{task}, "\
-                        "but #{task.model.short_name} has no registered "\
+                        "required default configuration on composition #{task}, " \
+                        "but #{task.model.short_name} has no registered " \
                         "default configurations"
                     return {}
                 else
-                    raise ArgumentError, "#{self} has no declared configuration "\
-                                            "called #{names.join(', ')}"
+                    raise ArgumentError, "#{self} has no declared configuration " \
+                                         "called #{names.join(', ')}"
                 end
             end
             result
@@ -182,7 +182,7 @@ module Syskit
         def required_composition_child_from_role(role)
             selected = find_required_composition_child_from_role(role)
             unless selected
-                raise ArgumentError, "#{role} does not seem to be a proper child "\
+                raise ArgumentError, "#{role} does not seem to be a proper child " \
                                      "of this composition"
             end
             selected
@@ -341,9 +341,9 @@ module Syskit
                        @child_task.find_output_port(mapped_port_name)
 
                 unless port
-                    raise NoMethodError, "task #{@child_task}, child #{@child_name} "\
-                                            "of #{@composition_task}, has no port "\
-                                            "called #{port_name}"
+                    raise NoMethodError, "task #{@child_task}, child #{@child_name} " \
+                                         "of #{@composition_task}, has no port " \
+                                         "called #{port_name}"
                 end
                 port
             end

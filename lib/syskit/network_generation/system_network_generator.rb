@@ -273,7 +273,7 @@ module Syskit
                 return if still_abstract.empty?
 
                 raise TaskAllocationFailed.new(self, still_abstract),
-                      "could not find implementation for the following abstract "\
+                      "could not find implementation for the following abstract " \
                       "tasks: #{still_abstract}"
             end
 
@@ -294,9 +294,9 @@ module Syskit
                         if seen[sink_port]
                             seen_task, seen_port = seen[sink_port]
                             if [source_task, source_port] != [seen_task, seen_port]
-                                raise SpecError, "#{task}.#{sink_port} is connected "\
-                                                 "multiple times, at least to "\
-                                                 "#{source_task}.#{source_port} and "\
+                                raise SpecError, "#{task}.#{sink_port} is connected " \
+                                                 "multiple times, at least to " \
+                                                 "#{source_task}.#{source_port} and " \
                                                  "#{seen_task}.#{seen_port}"
                             end
                         end
@@ -324,7 +324,7 @@ module Syskit
                 end
                 unless missing_devices.empty?
                     raise DeviceAllocationFailed.new(plan, missing_devices),
-                          "could not allocate devices for the following tasks: "\
+                          "could not allocate devices for the following tasks: " \
                           "#{missing_devices}"
                 end
 

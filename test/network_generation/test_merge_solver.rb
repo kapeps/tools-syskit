@@ -207,7 +207,7 @@ describe Syskit::NetworkGeneration::MergeSolver do
             assert_equal [nil, [m_connection, connection]],
                          solver.resolve_input_matching(m_task, task)
         end
-        it "should call the task model with the input port name "\
+        it "should call the task model with the input port name " \
            "to get the port model if connections mismatch" do
             task_model.should_receive(:find_input_port)
                       .with("sink_port").once.and_return(port_model)
@@ -241,7 +241,7 @@ describe Syskit::NetworkGeneration::MergeSolver do
             assert_equal [[[connection, m_connection]], nil],
                          solver.resolve_input_matching(merged_task, task)
         end
-        it "returns nil if the source port tasks are different "\
+        it "returns nil if the source port tasks are different " \
            "and the policies are not compatible" do
             m_task = mock_merged_task_with_concrete_input_connections(
                 [m_src = flexmock, "src_port", "sink_port", m_policy = mock_policy]
@@ -258,7 +258,7 @@ describe Syskit::NetworkGeneration::MergeSolver do
             assert_equal [nil, [m_connection, connection]],
                          solver.resolve_input_matching(m_task, task)
         end
-        it "returns an empty array if the source port is the same and "\
+        it "returns an empty array if the source port is the same and " \
            "the policies are compatible" do
             source_task = flexmock
             merged_task = mock_merged_task_with_concrete_input_connections(
@@ -282,7 +282,7 @@ describe Syskit::NetworkGeneration::MergeSolver do
                                 .with(merged_task_policy, policy)
                                 .and_return(nil).by_default
             end
-            it "does not find a match if connections from the same port "\
+            it "does not find a match if connections from the same port " \
                "are connected with incompatible policies" do
                 src_task = flexmock
                 merged_task = mock_merged_task_with_concrete_input_connections(
@@ -304,7 +304,7 @@ describe Syskit::NetworkGeneration::MergeSolver do
                 assert_equal [m_expected_connection, expected_connection],
                              m_failed_connections
             end
-            it "finds a match if connections from the same port are "\
+            it "finds a match if connections from the same port are " \
                "connected with compatible policies" do
                 src_port = flexmock
                 merged_task = mock_merged_task_with_concrete_input_connections(
@@ -316,7 +316,7 @@ describe Syskit::NetworkGeneration::MergeSolver do
                 flexmock(solver).should_receive(compatible_policies?: true)
                 assert_equal [[], nil], solver.resolve_input_matching(merged_task, task)
             end
-            it "allows connections from different ports "\
+            it "allows connections from different ports " \
                "regardless of the connection policy" do
                 src_task = flexmock
                 merged_task = mock_merged_task_with_concrete_input_connections(
@@ -327,7 +327,7 @@ describe Syskit::NetworkGeneration::MergeSolver do
                 )
                 assert_equal [[], nil], solver.resolve_input_matching(merged_task, task)
             end
-            it "allows connections from different tasks "\
+            it "allows connections from different tasks " \
                "regardless of the connection policy" do
                 src_task = flexmock
                 merged_task = mock_merged_task_with_concrete_input_connections(
@@ -389,7 +389,7 @@ describe Syskit::NetworkGeneration::MergeSolver do
             end
         end
 
-        it "successfully merges a network in which the same component "\
+        it "successfully merges a network in which the same component " \
            "is used on both sides" do
             source_task_m = Syskit::TaskContext
                             .new_submodel { output_port "out", "/double" }
