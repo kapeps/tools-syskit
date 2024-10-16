@@ -69,7 +69,7 @@ module Syskit
 
                 # Checkboxes to select widgets options
                 attr_reader :ui_hide_loggers
-                attr_reader :ui_show_expanded_job
+                attr_reader :ui_show_expanded_job, :syskit_poll
 
                 define_hooks :on_connection_state_changed
                 define_hooks :on_progress
@@ -223,11 +223,11 @@ module Syskit
                         has_quit = true
                     end
 
-                    if has_quit
-                        @syskit_pid = nil
-                        run_hook :on_connection_state_changed, "UNREACHABLE"
-                        @starting_monitor.stop
-                    end
+                    return unless has_quit
+
+                    @syskit_pid = nil
+                    run_hook :on_connection_state_changed, "UNREACHABLE"
+                    @starting_monitor.stop
                 end
                 slots "monitor_syskit_startup()"
 
@@ -320,9 +320,7 @@ module Syskit
 
                 def app_restart
                     run_hook :on_connection_state_changed, "RESTARTING"
-                    if @syskit_pid
-                        @starting_monitor.start(100)
-                    end
+                    @starting_monitor.start(100) if @syskit_pid
                     syskit.restart
                 end
 
@@ -377,7 +375,8 @@ module Syskit
                     job_summary_layout.add_widget(@batch_manager)
                     @batch_manager.connect(SIGNAL("active(bool)")) do |active|
                         if active then @batch_manager.show
-                        else @batch_manager.hide
+                        else
+                            @batch_manager.hide
                         end
                     end
                     @batch_manager.hide
@@ -418,7 +417,7 @@ module Syskit
                         @ui_task_inspector = Vizkit.default_loader.TaskInspector
                     )
                     @ui_hide_loggers.checked = false
-                    @ui_hide_loggers.connect SIGNAL("toggled(bool)") do |checked|
+                    @ui_hide_loggers.connect SIGNAL("toggled(bool)") do |_checked|
                         update_tasks_info
                     end
                     @ui_show_expanded_job.checked = true
@@ -433,10 +432,12 @@ module Syskit
                     management_tab_widget.addTab(ui_logging_configuration, "Logging")
 
                     splitter.add_widget(management_tab_widget)
-                    job_expanded_status.set_size_policy(Qt::SizePolicy::MinimumExpanding, Qt::SizePolicy::MinimumExpanding)
+                    job_expanded_status.set_size_policy(Qt::SizePolicy::MinimumExpanding,
+                                                        Qt::SizePolicy::MinimumExpanding)
                     @main_layout.add_widget splitter, 1
                     w = splitter.size.width
-                    splitter.sizes = [Integer(w * 0.25), Integer(w * 0.50), Integer(w * 0.25)]
+                    splitter.sizes = [Integer(w * 0.25), Integer(w * 0.50),
+                                      Integer(w * 0.25)]
                     nil
                 end
 
@@ -456,7 +457,9 @@ module Syskit
                 def create_ui_event_orogen_config_changed
                     syskit_orogen_config_changed = create_ui_event_frame
                     layout = Qt::HBoxLayout.new(syskit_orogen_config_changed)
-                    layout.add_widget(Qt::Label.new("oroGen configuration files changes on disk"), 1)
+                    layout.add_widget(
+                        Qt::Label.new("oroGen configuration files changes on disk"), 1
+                    )
                     layout.add_widget(reload = create_ui_event_button("Reload"))
                     layout.add_widget(close  = create_ui_event_button("Close"))
                     reload.connect(SIGNAL("clicked()")) do
@@ -520,7 +523,8 @@ module Syskit
                 def create_ui_new_job
                     new_job_layout = Qt::HBoxLayout.new
                     label = Qt::Label.new("New Job", self)
-                    label.set_size_policy(Qt::SizePolicy::Minimum, Qt::SizePolicy::Minimum)
+                    label.set_size_policy(Qt::SizePolicy::Minimum,
+                                          Qt::SizePolicy::Minimum)
                     @action_combo = Qt::ComboBox.new(self)
                     action_combo.enabled = false
                     action_combo.item_delegate = ActionListDelegate.new(self)
@@ -531,8 +535,6 @@ module Syskit
                     end
                     new_job_layout
                 end
-
-                attr_reader :syskit_poll
 
                 # @api private
                 #
@@ -621,9 +623,7 @@ module Syskit
 
                 def polling_call(path, method_name, *args)
                     key = [path, method_name, args]
-                    if @call_guards.key?(key)
-                        return if @call_guards[key]
-                    end
+                    return if @call_guards.key?(key) && @call_guards[key]
 
                     @call_guards[key] = true
                     syskit.async_call(path, method_name, *args) do |error, ret|
@@ -737,16 +737,18 @@ module Syskit
                     self.size = settings.value(
                         "MainWindow/size", Qt::Variant.new(Qt::Size.new(800, 600))
                     ).to_size
-                    %w{ui_hide_loggers ui_show_expanded_job}.each do |checkbox_name|
+                    %w[ui_hide_loggers ui_show_expanded_job].each do |checkbox_name|
                         default = Qt::Variant.new(send(checkbox_name).checked)
-                        send(checkbox_name).checked = settings.value(checkbox_name, default).to_bool
+                        send(checkbox_name).checked = settings.value(checkbox_name,
+                                                                     default).to_bool
                     end
                 end
 
                 def save_to_settings(settings = self.settings)
                     settings.set_value("MainWindow/size", Qt::Variant.new(size))
-                    %w(ui_hide_loggers ui_show_expanded_job).each do |checkbox_name|
-                        settings.set_value checkbox_name, Qt::Variant.new(send(checkbox_name).checked)
+                    %w[ui_hide_loggers ui_show_expanded_job].each do |checkbox_name|
+                        settings.set_value checkbox_name,
+                                           Qt::Variant.new(send(checkbox_name).checked)
                     end
                 end
 

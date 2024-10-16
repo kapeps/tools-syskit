@@ -152,6 +152,7 @@ module Syskit
 
             describe "specifying the name service" do
                 attr_reader :name_service
+
                 before do
                     @task_model = Syskit::TaskContext.new_submodel
                     @name_service = Orocos::Local::NameService.new

@@ -20,6 +20,7 @@ module Syskit
 
         describe "#can_merge?" do
             attr_reader :merging_task, :merged_task
+
             before do
                 task_m = TaskContext.new_submodel
                 @merging_task = task_m.new
@@ -139,6 +140,7 @@ module Syskit
 
         stub_process_server_deployment_helpers = Module.new do
             attr_reader :deployment_m, :deployment0, :deployment1
+
             def setup
                 super
                 @deployment_m = Deployment.new_submodel
@@ -169,6 +171,7 @@ module Syskit
             include stub_process_server_deployment_helpers
 
             attr_reader :task_m, :deployment_m
+
             before do
                 @task_m = TaskContext.new_submodel
                 @deployment_m = Deployment.new_submodel
@@ -192,6 +195,7 @@ module Syskit
             include stub_process_server_deployment_helpers
 
             attr_reader :task_m, :deployment_m
+
             before do
                 @task_m = TaskContext.new_submodel
                 @deployment_m = Deployment.new_submodel
@@ -212,6 +216,7 @@ module Syskit
             include stub_process_server_deployment_helpers
 
             attr_reader :task_m, :deployment_m
+
             before do
                 @task_m = TaskContext.new_submodel
                 @deployment_m = Deployment.new_submodel
@@ -232,6 +237,7 @@ module Syskit
             include stub_process_server_deployment_helpers
 
             attr_reader :task_m, :deployment_m
+
             before do
                 @task_m = TaskContext.new_submodel
                 @deployment_m = Deployment.new_submodel
@@ -267,6 +273,7 @@ module Syskit
 
         describe "#find_input_port" do
             attr_reader :task
+
             before do
                 @task = syskit_stub_deploy_and_configure "Task" do
                     input_port "in", "int"
@@ -290,6 +297,7 @@ module Syskit
 
         describe "#find_output_port" do
             attr_reader :task
+
             before do
                 @task = syskit_stub_deploy_and_configure "Task" do
                     input_port "in", "int"
@@ -313,6 +321,7 @@ module Syskit
 
         describe "start_event" do
             attr_reader :task, :task_m, :orocos_task
+
             before do
                 @task_m = TaskContext.new_submodel do
                     input_port "in", "/double"
@@ -417,6 +426,7 @@ module Syskit
 
         describe "stop_event" do
             attr_reader :task, :orocos_task
+
             before do
                 @task = syskit_stub_deploy_configure_and_start(TaskContext.new_submodel)
                 @orocos_task = flexmock(task.orocos_task)
@@ -454,6 +464,7 @@ module Syskit
 
         describe "#handle_state_changes" do
             attr_reader :task, :task_m, :orocos_task
+
             before do
                 @task_m = TaskContext.new_submodel do
                     input_port "in", "/double"
@@ -530,6 +541,7 @@ module Syskit
 
         describe "#update_orogen_state" do
             attr_reader :task, :orocos_task
+
             before do
                 @task_m = TaskContext.new_submodel
                 task = syskit_stub_and_deploy(@task_m)
@@ -622,6 +634,7 @@ module Syskit
 
         describe "#ready_for_setup?" do
             attr_reader :task, :orocos_task
+
             before do
                 task = syskit_stub_and_deploy("Task") {}
                 syskit_start_execution_agents(task)
@@ -715,6 +728,7 @@ module Syskit
 
         describe "#read_current_state" do
             attr_reader :task, :state_reader
+
             before do
                 @task = syskit_stub_and_deploy("Task") {}
                 syskit_start_execution_agents(task)
@@ -738,6 +752,7 @@ module Syskit
 
         describe "#setup_successful!" do
             attr_reader :task
+
             before do
                 task = syskit_stub_and_deploy(TaskContext.new_submodel)
                 syskit_start_execution_agents(task)
@@ -768,6 +783,7 @@ module Syskit
 
         describe "needs_reconfiguration" do
             attr_reader :task_m
+
             before do
                 @task_m = TaskContext.new_submodel
             end
@@ -844,6 +860,7 @@ module Syskit
         describe "reconfiguration behavior" do
             describe "without #update_properties" do
                 attr_reader :task_m
+
                 before do
                     @task_m =
                         RubyTaskContext.new_submodel(name: "#{class_name}##{name}") do
@@ -971,6 +988,7 @@ module Syskit
 
             describe "with #update_properties" do
                 attr_reader :task_m
+
                 before do
                     @task_m = RubyTaskContext.new_submodel(name: name.upcase) do
                         property "config", "/double", 0
@@ -1095,6 +1113,7 @@ module Syskit
 
             describe "handling of dynamic ports" do
                 attr_reader :task_m
+
                 before do
                     @task_m = RubyTaskContext.new_submodel(name: name.upcase) do
                         property "config", "/double", 0
@@ -1259,6 +1278,7 @@ module Syskit
 
         describe "#setup" do
             attr_reader :task, :orocos_task, :recorder
+
             before do
                 @recorder = flexmock
                 recorder.should_receive(:called)
@@ -1406,6 +1426,7 @@ module Syskit
 
         describe "interrupt_event" do
             attr_reader :task, :orocos_task, :deployment
+
             it "calls stop on the task if it has an execution agent in nominal state" do
                 task = syskit_stub_deploy_configure_and_start(TaskContext.new_submodel)
                 flexmock(task.orocos_task).should_receive(:stop).once.pass_thru
@@ -1511,6 +1532,7 @@ module Syskit
             def self.handling_of_static_ports(input: false)
                 attr_reader :transaction
                 attr_reader :source_task, :sink_task
+
                 before do
                     @source_task = syskit_stub_and_deploy "SourceTask" do
                         p = output_port("out", "int")
@@ -1527,7 +1549,8 @@ module Syskit
                 let(:source_task_p) { transaction[source_task] }
                 let(:task_p) do
                     if input then sink_task_p
-                    else source_task_p
+                    else
+                        source_task_p
                     end
                 end
 
@@ -1630,6 +1653,7 @@ module Syskit
 
         describe "property handling" do
             attr_reader :double_t, :task_m, :task
+
             before do
                 @double_t = double_t = stub_type "/double"
                 @task_m = RubyTaskContext.new_submodel do
@@ -1786,6 +1810,7 @@ module Syskit
             describe "property updates at runtime" do
                 describe "a running task" do
                     attr_reader :task, :property
+
                     before do
                         @task = syskit_stub_deploy_configure_and_start(task_m)
                         @property = task.test_property
@@ -1838,6 +1863,7 @@ module Syskit
 
                 describe "a non-setup task" do
                     attr_reader :task, :property
+
                     before do
                         @task = syskit_stub_and_deploy(task_m)
                         syskit_start_execution_agents(task)
@@ -1868,6 +1894,7 @@ module Syskit
 
                 describe "a setup but not started task" do
                     attr_reader :task, :property
+
                     before do
                         @task = syskit_stub_and_deploy(task_m)
                         syskit_start_execution_agents(task)
@@ -1958,6 +1985,7 @@ module Syskit
 
             describe "#commit_properties" do
                 attr_reader :task, :stub_property, :remote_test_property
+
                 before do
                     @task = syskit_stub_and_deploy(task_m)
                     syskit_start_execution_agents(task)
@@ -2142,6 +2170,7 @@ module Syskit
 
                 describe "initial values" do
                     attr_reader :task
+
                     before do
                         task_m = Syskit::TaskContext.new_submodel do
                             property "p", "/int"
@@ -2283,6 +2312,7 @@ module Syskit
 
         describe "read_only" do
             attr_reader :deployment, :handle
+
             before do
                 task_m = TaskContext.new_submodel do
                     property "p", "/double"

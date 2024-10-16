@@ -43,6 +43,7 @@ describe Syskit::Actions::InterfaceModelExtension do
 
     describe "#use_profile" do
         attr_reader :actions, :profile
+
         before do
             @actions = Roby::Actions::Interface.new_submodel
             @profile = Syskit::Actions::Profile.new
@@ -114,7 +115,7 @@ describe Syskit::Actions::InterfaceModelExtension do
             actions.use_profile(profile)
 
             flexmock(req).should_receive(:as_plan).and_return(task = Roby::Task.new)
-            act = actions.def_def.instanciate(plan)
+            actions.def_def.instanciate(plan)
             assert [task], plan.tasks.to_a
         end
 
@@ -207,6 +208,7 @@ describe Syskit::Actions::InterfaceModelExtension do
 
     describe "the generated action method" do
         attr_reader :actions, :profile
+
         before do
             @actions = Roby::Actions::Interface.new_submodel
             @profile = Syskit::Actions::Profile.new(nil)
@@ -239,7 +241,7 @@ describe Syskit::Actions::InterfaceModelExtension do
             assert_equal task_m, task.planning_task.requirements.model
         end
         it "should allow passing arguments if the main model has some" do
-            task_m, task = call_action_method(arg0: 10) { argument :arg0 }
+            _, task = call_action_method(arg0: 10) { argument :arg0 }
             assert_equal Hash[arg0: 10], task.planning_task.requirements.arguments
         end
         it "should require passing arguments if the main model has some without defaults" do
@@ -259,7 +261,8 @@ describe Syskit::Actions::InterfaceModelExtension do
             actions.use_profile(profile)
             task = actions.new(plan).test_def.as_plan
             plan.add(task)
-            assert_equal Hash[], task.planning_task.requirements.arguments
+            assert_equal({}, task.planning_task.requirements.arguments,
+                         task.planning_task.requirements.arguments)
         end
         it "precomputes the requirements template the first time" do
             task_m = Syskit::TaskContext.new_submodel
@@ -331,6 +334,7 @@ describe Syskit::Actions::InterfaceModelExtension do
 
     describe "overloading of definitions by actions" do
         attr_reader :actions, :profile
+
         before do
             @actions = Roby::Actions::Interface.new_submodel
             @profile = Syskit::Actions::Profile.new(nil)

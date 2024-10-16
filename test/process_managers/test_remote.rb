@@ -65,6 +65,7 @@ describe Syskit::ProcessManagers::Remote do
 
     describe "#loader" do
         attr_reader :loader
+
         before do
             @client = start_and_connect_to_server
             @loader = client.loader
@@ -174,14 +175,14 @@ describe Syskit::ProcessManagers::Remote do
             binfile = Roby.app.default_pkgconfig_loader
                           .find_deployment_binfile("syskit_tests_empty")
             wait_for_gdb_ready(port)
-            STDERR.puts "READY"
+            $stderr.puts "READY"
             puts <<~SCRIPT
                 file #{binfile}
                 target remote 127.0.0.1:#{port}
                 continue
                 quit
             SCRIPT
-            STDIN.readline
+            $stdin.readline
             execute_gdb_script(<<~SCRIPT)
                 file #{binfile}
                 target remote 127.0.0.1:#{port}
@@ -308,6 +309,7 @@ describe Syskit::ProcessManagers::Remote do
 
     describe "stopping a remote process" do
         attr_reader :process
+
         before do
             @client = start_and_connect_to_server
             @process = client.start(

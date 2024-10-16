@@ -31,6 +31,7 @@ module Syskit
                 end
 
                 attr_reader :server0, :server1
+
                 before do
                     Syskit.conf.only_load_models = false
                     @process_servers = []

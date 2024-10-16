@@ -226,11 +226,11 @@ module Syskit
             # Enumerates all the deployments registered on self
             #
             # @yieldparam [ConfiguredDeployment]
-            def each_configured_deployment
+            def each_configured_deployment(&block)
                 return enum_for(__method__) unless block_given?
 
                 deployments.each_value do |set|
-                    set.each { |c| yield(c) }
+                    set.each(&block)
                 end
             end
 
@@ -340,7 +340,7 @@ module Syskit
                 end
 
                 model_to_name = model_to_name.merge(model_to_name_kw)
-                model_to_name.each do |task_model, _name|
+                model_to_name.each_key do |task_model|
                     validate_task_model_is_plain(task_model)
                 end
 
@@ -551,7 +551,8 @@ module Syskit
                         end
                         deployments_by_name[n.orogen_model.name] = n
                         n.orogen_model
-                    else n
+                    else
+                        n
                     end
                 end
                 deployment_spec = deployment_spec.transform_keys do |k|
