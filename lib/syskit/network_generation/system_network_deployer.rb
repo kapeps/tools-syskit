@@ -198,8 +198,11 @@ module Syskit
             # is valid
             #
             # @raise [MissingDeployments] if some tasks could not be deployed
+            # @raise [MissingConfigurationSection] if some configuration sections are
+            #   used but do not exist
             def validate_deployed_network
                 verify_all_tasks_deployed
+                verify_all_configurations_exist
             end
 
             # Verifies that all tasks in the plan are deployed
@@ -230,6 +233,34 @@ module Syskit
                 raise MissingDeployments.new(tasks_with_candidates),
                       "there are tasks for which it exists no deployed equivalent: "\
                       "#{not_deployed.map { |m| "#{m}(#{m.orogen_model.name})" }}"
+            end
+
+            # Verifies that all selected configuration sections exist
+            #
+            # @raise [MissingConfigurationSection]
+            def verify_all_configurations_exist
+                tasks = plan.find_local_tasks(TaskContext)
+                            .not_finished.not_abstract
+
+                missing_sections = tasks.map do |t|
+                    conf_manager = t.model.configuration_manager
+                    Array(t.conf).find_all do |name|
+                        # 'default' always exists
+                        next if name == "default"
+
+                        !conf_manager.sections[name.to_s]
+                    end
+                end
+
+                missing =
+                    tasks.zip(missing_sections).each_with_object({}) do |(t, sections), h|
+                        h[t] = sections unless sections.empty?
+                    end
+
+                return if missing.empty?
+
+                raise MissingConfigurationSection.new(missing),
+                      "some configuration sections are used but not defined"
             end
 
             # Try to resolve a set of deployment candidates for a given task

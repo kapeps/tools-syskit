@@ -583,6 +583,27 @@ module Syskit
         end
     end
 
+    # Exception raised at the end of #resolve if some tasks are referring to non-existing
+    # configurations
+    class MissingConfigurationSection < SpecError
+        # Association of tasks and the sections that are missing
+        attr_reader :missing_sections_by_task
+
+        def initialize(missing_sections_by_task)
+            @missing_sections_by_task = missing_sections_by_task
+        end
+
+        def pretty_print(pp)
+            pp.text "the following configuration sections are used but do not exist"
+            @missing_sections_by_task.each do |task, sections|
+                pp.breakable
+                pp.text "'#{sections.join('\', \'')}', in use by:"
+                pp.breakable
+                pp.text "  #{task} (#{task.orogen_model.name})"
+            end
+        end
+    end
+
     class InstanciationError < SpecError
         # The instanciation chain, i.e. an array of composition models that
         # were being instanciated
