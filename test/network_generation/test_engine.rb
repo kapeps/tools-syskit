@@ -562,6 +562,7 @@ module Syskit
                     # syskit engine
                     execute { plan.remove_task(deployed.planning_task) }
 
+                    syskit_stub_conf task_model, "non_default"
                     new_deployed = syskit_deploy(
                         composition_model.use("child" => task_model.with_conf("non_default"))
                     )
@@ -578,6 +579,7 @@ module Syskit
                     deployed_task = syskit_deploy(task_model)
                     planning_task = deployed_task.planning_task
                     plan.unmark_mission_task(deployed_task)
+                    syskit_stub_conf task_model, "non_default"
                     deployed_reconf = syskit_deploy(task_model.with_conf("non_default"))
                     plan.add_mission_task(deployed_reconf)
 
