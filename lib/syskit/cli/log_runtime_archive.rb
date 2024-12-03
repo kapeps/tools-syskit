@@ -69,8 +69,8 @@ module Syskit
                 until available_space >= free_space_delete_until
                     files = @target_dir.each_child.select(&:file?)
                     if files.empty?
-                        Roby.warn "Cannot erase files: the folder is empty but the "\
-                        "available space is smaller than the threshold."
+                        Roby.warn "Cannot erase files: the folder is empty but the " \
+                                  "available space is smaller than the threshold."
                         break
                     end
 
@@ -150,7 +150,7 @@ module Syskit
             # Find all dataset-looking folders within a root log folder
             def self.find_all_dataset_folders(root_dir)
                 candidates = root_dir.enum_for(:each_entry).map do |child|
-                    next unless /^\d{8}\-\d{4}(\.\d+)?$/.match?(child.basename.to_s)
+                    next unless /^\d{8}-\d{4}(\.\d+)?$/.match?(child.basename.to_s)
 
                     child = (root_dir / child)
                     next unless child.directory?
@@ -182,7 +182,7 @@ module Syskit
                 )
                 child_path.unlink
             rescue Exception => e # rubocop:disable Lint/RescueException
-                Roby.display_exception(STDOUT, e)
+                Roby.display_exception($stdout, e)
                 if start_pos
                     add_to_archive_rollback(archive_io, start_pos, logger: logger)
                 end
@@ -244,13 +244,13 @@ module Syskit
             # Write necessary padding (tar requires multiples of 512 bytes)
             def self.write_padding(size, io)
                 # Move to end, compute actual size, pad to 512 bytes blocks
-                remainder = (size + 511) / 512 * 512 - size
+                remainder = ((size + 511) / 512 * 512) - size
                 io.write("\0" * remainder)
             end
 
             # Create a logger that will display nothing
             def self.null_logger
-                logger = Logger.new(STDOUT)
+                logger = Logger.new($stdout)
                 logger.level = Logger::FATAL + 1
                 logger
             end
@@ -284,7 +284,7 @@ module Syskit
                     add_to_archive(archive_io, child_path, logger: logger)
 
                     if archive_io.tell > max_size
-                        return (complete && (i == candidates.size - 1))
+                        return complete && (i == candidates.size - 1)
                     end
                 end
 
@@ -389,7 +389,7 @@ module Syskit
                 if bytesize(name) <= 100
                     prefix = ""
                 else
-                    parts = name.split(%r{\/})
+                    parts = name.split(%r{/})
                     newname = parts.pop
 
                     nxt = ""
@@ -405,7 +405,7 @@ module Syskit
                     name = newname
                 end
 
-                [name, prefix, (bytesize(name) > 100 || bytesize(prefix) > 155)]
+                [name, prefix, bytesize(name) > 100 || bytesize(prefix) > 155]
             end
         end
     end

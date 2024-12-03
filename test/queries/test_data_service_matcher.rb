@@ -63,7 +63,7 @@ module Syskit
                     assert_matcher_finds [task.test_srv.srv_out_port], port_matcher
                 end
 
-                it "accepts task matcher predicates when created "\
+                it "accepts task matcher predicates when created " \
                    "on a data service model" do
                     matcher = @srv_m.match.abstract
                     plan.add(task = @task_m.new)
@@ -109,7 +109,7 @@ module Syskit
                     e = assert_raises(ArgumentError) do
                         @task_m.test_srv.match.as(srv_m)
                     end
-                    assert_equal "cannot refine match from "\
+                    assert_equal "cannot refine match from " \
                                  "#{@derived_srv_m} to #{srv_m}", e.message
                 end
 
@@ -118,7 +118,7 @@ module Syskit
                     e = assert_raises(ArgumentError) do
                         matcher.as(@derived_srv_m)
                     end
-                    assert_equal "cannot refine match from "\
+                    assert_equal "cannot refine match from " \
                                  "#{@base_srv_m} to #{@derived_srv_m}", e.message
                 end
             end

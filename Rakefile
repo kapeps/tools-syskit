@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
-require "bundler/gem_tasks"
 require "rake/testtask"
 
 task :default
 
 TESTOPTS = ENV.delete("TESTOPTS") || ""
 
-RUBOCOP_REQUIRED = (ENV["RUBOCOP"] == "1")
-USE_RUBOCOP = (ENV["RUBOCOP"] != "0")
 USE_JUNIT = (ENV["JUNIT"] == "1")
 USE_GRPC = (ENV["SYSKIT_HAS_GRPC"] != "0")
 REPORT_DIR = ENV["REPORT_DIR"] || File.expand_path("test_reports", __dir__)
@@ -62,20 +59,10 @@ end
 
 task "test" => ["test:gui", "test:core", "test:live"]
 
-if USE_RUBOCOP
-    begin
-        require "rubocop/rake_task"
-        RuboCop::RakeTask.new do |t|
-            if USE_JUNIT
-                t.formatters << "junit"
-                t.options << "-o" << "#{REPORT_DIR}/rubocop.junit.xml"
-            end
-        end
-        task "test" => "rubocop"
-    rescue LoadError
-        raise if RUBOCOP_REQUIRED
-    end
+task "rubocop" do
+    raise "rubocop failed" unless system(ENV["RUBOCOP_CMD"] || "rubocop")
 end
+task "test" => "rubocop" if ENV["RUBOCOP"] != "0"
 
 protogen =
     file "lib/syskit/telemetry/agent/agent_pb.rb" =>

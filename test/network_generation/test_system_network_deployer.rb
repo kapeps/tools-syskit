@@ -79,6 +79,7 @@ module Syskit
 
             describe "#select_deployments" do
                 attr_reader :task_m, :task, :task_models, :deployments, :deployment_models
+
                 before do
                     @task_m = Syskit::TaskContext.new_submodel
                     plan.add(@task = task_m.new)
@@ -117,7 +118,7 @@ module Syskit
                     flexmock(deployer)
                         .should_receive(:find_suitable_deployment_for)
                         .with(task).and_return(nil)
-                    assert_equal [Hash[], Set[task]],
+                    assert_equal [{}, Set[task]],
                                  deployer.select_deployments([task])
                 end
                 it "does not select the same deployment twice" do
@@ -292,6 +293,7 @@ module Syskit
 
             describe "#find_suitable_deployment_for" do
                 attr_reader :task_m, :task
+
                 before do
                     @task_m = Syskit::TaskContext.new_submodel
                     plan.add(@task = task_m.new)

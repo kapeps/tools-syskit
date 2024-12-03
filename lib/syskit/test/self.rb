@@ -26,8 +26,6 @@ module Syskit
             def setup
                 Syskit.conf.define_default_process_managers = false
 
-                setup_default_logger
-
                 @old_pkg_config = ENV["PKG_CONFIG_PATH"].dup
                 Roby.app.app_dir = nil
                 Roby.app.search_path.clear
@@ -154,7 +152,7 @@ module Syskit
             def setup_default_logger
                 null_output = ENV["TEST_LOG_NULL_OUTPUT"] != "0"
                 log_level =
-                    if (log_level = ENV["TEST_LOG_LEVEL"])
+                    if (log_level = ENV.fetch("TEST_LOG_LEVEL", nil))
                         Logger.const_get(log_level)
                     elsif ENV["TEST_ENABLE_COVERAGE"] == "1"
                         Logger::DEBUG
@@ -169,8 +167,8 @@ module Syskit
                     Syskit.logger.formatter = current_formatter
                 end
 
-                if (explicit_level = ENV["TEST_LOG_LEVEL"])
-                    puts "running tests with logger in #{explicit_level} mode "\
+                if (explicit_level = ENV.fetch("TEST_LOG_LEVEL", nil))
+                    puts "running tests with logger in #{explicit_level} mode " \
                          "(from TEST_LOG_LEVEL)"
                 end
                 Syskit.logger.level = log_level
@@ -226,13 +224,14 @@ module Syskit
                     if m.kind_of?(Syskit::Models::BoundDataService)
                         srv = m
                         m.component_model
-                    else m
+                    else
+                        m
                     end
                 end
                 expected = Syskit::Models::Placeholder.for(proxied_models)
                 expected = srv.attach(expected) if srv
                 assert_equal(
-                    expected, result, "#{result} was expected to be a proxy model for "\
+                    expected, result, "#{result} was expected to be a proxy model for " \
                                       "#{models} (#{expected})"
                 )
             end

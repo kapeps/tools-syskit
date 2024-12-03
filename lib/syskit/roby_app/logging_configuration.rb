@@ -111,12 +111,12 @@ module Syskit
             # the given property
             def log_stream_for(property)
                 stream_name = "#{property.task_context.orocos_name}.#{property.name}"
-                if !configuration_log.has_stream?(stream_name)
+                if configuration_log.has_stream?(stream_name)
+                    configuration_log.stream(stream_name)
+                else
                     configuration_log.create_stream(
                         stream_name, property.type, property.log_metadata
                     )
-                else
-                    configuration_log.stream(stream_name)
                 end
             end
 
@@ -145,7 +145,8 @@ module Syskit
             def group_by_name(name)
                 if group = groups[name.to_s]
                     group
-                else raise ArgumentError, "no group named #{name}"
+                else
+                    raise ArgumentError, "no group named #{name}"
                 end
             end
 

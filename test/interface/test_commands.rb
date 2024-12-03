@@ -28,6 +28,7 @@ module Syskit
 
             describe "#deployments" do
                 attr_reader :task_m, :task
+
                 before do
                     @task_m = TaskContext.new_submodel
                     @task = syskit_stub_deploy_configure_and_start(
@@ -48,6 +49,7 @@ module Syskit
 
             describe "#restart_deployments" do
                 attr_reader :task_m, :task
+
                 before do
                     @task_m = TaskContext.new_submodel
                     @task = syskit_stub_deploy_configure_and_start(
@@ -99,6 +101,7 @@ module Syskit
 
             describe "#stop_deployments" do
                 attr_reader :task_m, :task
+
                 before do
                     @task_m = TaskContext.new_submodel
                     @task = syskit_stub_deploy_configure_and_start(
@@ -193,6 +196,7 @@ module Syskit
 
             describe "the log group management" do
                 attr_reader :group
+
                 before do
                     @group = Syskit.conf.logs.create_group "test" do |g|
                         g.add(/base.samples.frame.Frame/)
@@ -217,14 +221,14 @@ module Syskit
                     assert !group.enabled?
                 end
 
-                it "enable_log_group raises ArgumentError "\
+                it "enable_log_group raises ArgumentError " \
                    "if the log group does not exist" do
                     assert_raises(ArgumentError) do
                         subject.enable_log_group "does_not_exist"
                     end
                 end
 
-                it "disable_log_group raises ArgumentError "\
+                it "disable_log_group raises ArgumentError " \
                    "if the log group does not exist" do
                     assert_raises(ArgumentError) do
                         subject.disable_log_group "does_not_exist"
@@ -247,7 +251,7 @@ module Syskit
             #   process_execute_call
             def queue_execute_call(&block)
                 if @interface_thread
-                    raise "you must call #process_execute_call after a call "\
+                    raise "you must call #process_execute_call after a call " \
                           "to #queue_execute_call"
                 end
 
@@ -264,16 +268,16 @@ module Syskit
             # Process the work queued with {#queue_execute_call}
             def process_execute_call
                 subject.execution_engine.join_all_waiting_work
-                if !@interface_thread.alive?
+                if @interface_thread.alive?
+                    @interface_thread_sync.wait
+                    @interface_thread.join
+                else
                     # Join the thread to have it to raise an exception that
                     # would have terminated it
                     @interface_thread.join
                     # If no exception was risen, fail with a less helpful
                     # message
                     flunck("interface thread quit unexpectedly")
-                else
-                    @interface_thread_sync.wait
-                    @interface_thread.join
                 end
             ensure
                 @interface_thread = nil

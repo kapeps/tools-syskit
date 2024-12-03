@@ -126,7 +126,7 @@ module Syskit
 
             def to_s
                 model_to_s = @model.map(&:to_s).join(", ")
-                "#{@component_matcher}.data_service("\
+                "#{@component_matcher}.data_service(" \
                     "model: #{model_to_s}, name: #{@name_filter})"
             end
         end

@@ -30,7 +30,7 @@ module Syskit
                     )
                 end
 
-                it "does not return paths that match the pattern but "\
+                it "does not return paths that match the pattern but " \
                    "do not have a info.yml file inside" do
                     path = (@root / "20229423-1104")
                     path.mkpath
@@ -52,7 +52,7 @@ module Syskit
             end
 
             describe ".add_to_archive" do
-                it "adds a compressed version of the input I/O to the archive "\
+                it "adds a compressed version of the input I/O to the archive " \
                    "and deletes the input file" do
                     something = make_in_file "something.txt", "something"
 
@@ -115,7 +115,7 @@ module Syskit
                     refute bli.exist?
                 end
 
-                it "restores the file as it was and keeps the input file if an "\
+                it "restores the file as it was and keeps the input file if an " \
                    "exception occurs" do
                     bla = make_in_file "bla.txt", "bla"
                     blo = make_in_file "blo.txt", "blo"
@@ -170,7 +170,7 @@ module Syskit
                     )
                 end
 
-                it "in full mode, archives the non-rotated logs "\
+                it "in full mode, archives the non-rotated logs " \
                    "if there are no rotated logs" do
                     dataset = make_valid_folder("20220434-2023")
                     make_in_file "something.txt", "something", root: dataset
@@ -265,7 +265,7 @@ module Syskit
                     )
                 end
 
-                it "always adds at least a file, "\
+                it "always adds at least a file, " \
                    "regardless of the current size of the archive" do
                     dataset = make_valid_folder("20220434-2023")
                     make_in_file "test.0.log", "test0", root: dataset
@@ -295,8 +295,8 @@ module Syskit
                     )
                 end
 
-                it "reports a complete processing in full mode if the size limit "\
-                   "is reached on the last rotated log and "\
+                it "reports a complete processing in full mode if the size limit " \
+                   "is reached on the last rotated log and " \
                    "there are no non-rotated logs" do
                     dataset = @root / "20220434-2023"
                     dataset.mkpath
@@ -318,8 +318,8 @@ module Syskit
                     )
                 end
 
-                it "reports a complete processing in full mode if the size limit "\
-                   "is reached on the last non-rotated log and "\
+                it "reports a complete processing in full mode if the size limit " \
+                   "is reached on the last non-rotated log and " \
                    "there are no rotated logs" do
                     dataset = make_valid_folder("20220434-2023")
 
@@ -339,7 +339,7 @@ module Syskit
                     )
                 end
 
-                it "reports a complete processing in partial mode if the size limit "\
+                it "reports a complete processing in partial mode if the size limit " \
                    "is reached on the last log to process" do
                     dataset = make_valid_folder("20220434-2023")
                     make_in_file "test.0.log", "test0", root: dataset
@@ -438,7 +438,7 @@ module Syskit
                     refute (@archive_dir / "20220434-2023.2.tar").exist?
                 end
 
-                it "creates a new archive if the last archive is already "\
+                it "creates a new archive if the last archive is already " \
                    "above the limit" do
                     dataset = make_valid_folder("20220434-2023")
                     make_random_file "test.0.log", root: dataset
@@ -568,7 +568,7 @@ module Syskit
                         end
                 end
 
-                def assert_deleted_files(deleted_files) # rubocop:disable Metrics/AbcSize
+                def assert_deleted_files(deleted_files)
                     if deleted_files.empty?
                         files = @archive_dir.each_child.select(&:file?)
                         assert_equal 10, files.size

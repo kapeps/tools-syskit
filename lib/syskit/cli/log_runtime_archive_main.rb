@@ -65,7 +65,7 @@ module Syskit
                 def validate_directory_exists(dir)
                     dir = Pathname.new(dir)
                     unless dir.directory?
-                        raise ArgumentError, "#{dir} does not exist, or is not a "\
+                        raise ArgumentError, "#{dir} does not exist, or is not a " \
                                              "directory"
                     end
 
@@ -73,11 +73,11 @@ module Syskit
                 end
 
                 def make_archiver(root_dir, target_dir)
-                    logger = Logger.new(STDOUT)
+                    logger = Logger.new($stdout)
 
                     Syskit::CLI::LogRuntimeArchive.new(
                         root_dir, target_dir,
-                        logger: logger, max_archive_size: options[:max_size] * 1024**2
+                        logger: logger, max_archive_size: options[:max_size] * (1024**2)
                     )
                 end
             end

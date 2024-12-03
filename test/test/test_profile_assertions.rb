@@ -94,7 +94,7 @@ module Syskit
                                  Actions([@interface_m.act, @interface_m.test_def])
                 end
 
-                it "resolves a method action that returns a task with "\
+                it "resolves a method action that returns a task with " \
                    "a coordination model" do
                     task_m = Roby::Task.new_submodel
                     @interface_m.class_eval do
@@ -111,7 +111,7 @@ module Syskit
                     assert_equal [@interface_m.test_def], Actions(@interface_m.act)
                 end
 
-                it "resolves a method action that returns a task with children "\
+                it "resolves a method action that returns a task with children " \
                    "that are itself method actions" do
                     task_m = Roby::Task.new_submodel
                     @interface_m.class_eval do
@@ -133,7 +133,7 @@ module Syskit
                     assert_equal [@interface_m.test_def], Actions(@interface_m.act)
                 end
 
-                it "resolves a method action that returns a task with children "\
+                it "resolves a method action that returns a task with children " \
                    "that are themselves instance requirement tasks" do
                     @interface_m.class_eval do
                         task_m = Roby::Task.new_submodel
@@ -182,7 +182,7 @@ module Syskit
                     assert_equal [], skipped
                 end
 
-                it "reports actions that cannot be instanciated "\
+                it "reports actions that cannot be instanciated " \
                    "because of missing arguments" do
                     @interface_m.describe(:m_action).required_arg(:test, "some docs")
                     @interface_m.define_method(:m_action) do |test:|
@@ -193,7 +193,7 @@ module Syskit
                     assert_equal [@interface_m.m_action], skipped
                 end
 
-                it "reports actions that cannot be instanciated "\
+                it "reports actions that cannot be instanciated " \
                    "because of missing arguments within a state machine" do
                     @interface_m.describe(:m_action).required_arg(:test, "some docs")
                     @interface_m.define_method(:m_action) do |test:|
@@ -233,7 +233,7 @@ module Syskit
                     assert_equal [], skipped
                 end
 
-                it "uses example arguments in place of required arguments "\
+                it "uses example arguments in place of required arguments " \
                    "when available" do
                     @interface_m.describe(:m_action).required_arg(:test, "", example: 10)
                     @interface_m.define_method :m_action do |test:|
@@ -368,10 +368,10 @@ module Syskit
                     e = assert_raises(Minitest::Assertion) do
                         assert_is_self_contained(action, exclude: excluded)
                     end
-                    message = "could not validate some non-Syskit actions: 'action', "\
-                              "'some', probably because of required arguments. Pass "\
-                              "the action to the 'exclude' option of "\
-                              "assert_is_self_contained, and add a separate assertion "\
+                    message = "could not validate some non-Syskit actions: 'action', " \
+                              "'some', probably because of required arguments. Pass " \
+                              "the action to the 'exclude' option of " \
+                              "assert_is_self_contained, and add a separate assertion " \
                               "test with the arguments added explicitly"
                     assert_equal message, e.message
                 end
@@ -461,10 +461,10 @@ module Syskit
                     e = assert_raises(Minitest::Assertion) do
                         assert_can_instanciate(action, exclude: excluded)
                     end
-                    message = "could not validate some non-Syskit actions: 'action', "\
-                              "'some', probably because of required arguments. Pass "\
-                              "the action to the 'exclude' option of "\
-                              "assert_can_instanciate, and add a separate assertion "\
+                    message = "could not validate some non-Syskit actions: 'action', " \
+                              "'some', probably because of required arguments. Pass " \
+                              "the action to the 'exclude' option of " \
+                              "assert_can_instanciate, and add a separate assertion " \
                               "test with the arguments added explicitly"
                     assert_equal message, e.message
                 end
@@ -487,11 +487,11 @@ module Syskit
                         )
                     end
                     message =
-                        "could not validate some non-Syskit actions given "\
-                        "to `together_with` in assert_can_instanciate: 'action', "\
-                        "'some', probably because of "\
-                        "missing arguments. If you are passing a profile or action "\
-                        "interface and do not require to test against that particular "\
+                        "could not validate some non-Syskit actions given " \
+                        "to `together_with` in assert_can_instanciate: 'action', " \
+                        "'some', probably because of " \
+                        "missing arguments. If you are passing a profile or action " \
+                        "interface and do not require to test against that particular " \
                         "action, pass it to the 'exclude' argument"
                     assert_equal message, e.message
                 end
@@ -600,10 +600,10 @@ module Syskit
                     e = assert_raises(Minitest::Assertion) do
                         assert_can_deploy(action, exclude: excluded)
                     end
-                    message = "could not validate some non-Syskit actions: 'action', "\
-                              "'some', probably because of required arguments. Pass "\
-                              "the action to the 'exclude' option of "\
-                              "assert_can_deploy, and add a separate assertion "\
+                    message = "could not validate some non-Syskit actions: 'action', " \
+                              "'some', probably because of required arguments. Pass " \
+                              "the action to the 'exclude' option of " \
+                              "assert_can_deploy, and add a separate assertion " \
                               "test with the arguments added explicitly"
                     assert_equal message, e.message
                 end
@@ -626,11 +626,11 @@ module Syskit
                         )
                     end
                     message =
-                        "could not validate some non-Syskit actions given "\
-                        "to `together_with` in assert_can_deploy: 'action', "\
-                        "'some', probably because of "\
-                        "missing arguments. If you are passing a profile or action "\
-                        "interface and do not require to test against that particular "\
+                        "could not validate some non-Syskit actions given " \
+                        "to `together_with` in assert_can_deploy: 'action', " \
+                        "'some', probably because of " \
+                        "missing arguments. If you are passing a profile or action " \
+                        "interface and do not require to test against that particular " \
                         "action, pass it to the 'exclude' argument"
                     assert_equal message, e.message
                 end

@@ -111,8 +111,8 @@ module Syskit
                 return candidates.first if candidates.size <= 1
 
                 debug do
-                    "#{candidates.size} deployments available for #{task} "\
-                    "(#{task.concrete_model}), trying to resolve"
+                    "#{candidates.size} deployments available for #{task} " \
+                        "(#{task.concrete_model}), trying to resolve"
                 end
                 selected = log_nest(2) do
                     resolve_deployment_ambiguity(candidates, task)
@@ -122,8 +122,8 @@ module Syskit
                     selected
                 else
                     debug do
-                        "  deployment of #{task} (#{task.concrete_model}) "\
-                        "is ambiguous"
+                        "  deployment of #{task} (#{task.concrete_model}) " \
+                            "is ambiguous"
                     end
                     nil
                 end
@@ -153,7 +153,7 @@ module Syskit
                     elsif used_deployments.include?(selected)
                         debug do
                             machine, configured_deployment, task_name = *selected
-                            "#{task} resolves to #{configured_deployment}.#{task_name} "\
+                            "#{task} resolves to #{configured_deployment}.#{task_name} " \
                                 "on #{machine} for its deployment, but it is already used"
                         end
                         missing_deployments << task
@@ -231,7 +231,7 @@ module Syskit
                     tasks_with_candidates[task] = candidates
                 end
                 raise MissingDeployments.new(tasks_with_candidates),
-                      "there are tasks for which it exists no deployed equivalent: "\
+                      "there are tasks for which it exists no deployed equivalent: " \
                       "#{not_deployed.map { |m| "#{m}(#{m.orogen_model.name})" }}"
             end
 
@@ -304,8 +304,8 @@ module Syskit
                     candidates.each do |deployed_task|
                         deployment = deployed_task.configured_deployment
                         info do
-                            "  #{deployed_task.mapped_task_name} of #{deployment.model} "\
-                            "on #{deployment.process_server_name}"
+                            "  #{deployed_task.mapped_task_name} of #{deployment.model} " \
+                                "on #{deployment.process_server_name}"
                         end
                     end
                     break

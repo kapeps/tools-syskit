@@ -78,7 +78,7 @@ module Syskit
                     [Actions::Model::Action.new(arg)]
                 else
                     raise ArgumentError,
-                          "expected an action or a collection of actions, but got "\
+                          "expected an action or a collection of actions, but got " \
                           "#{arg} of class #{arg.class}"
                 end
             end
@@ -131,7 +131,7 @@ module Syskit
                     Actions::Model::Action.new(arg)
                 else
                     raise ArgumentError,
-                          "expected an action or a collection of actions, but got "\
+                          "expected an action or a collection of actions, but got " \
                           "#{arg} of class #{arg.class}"
                 end
             end
@@ -207,9 +207,9 @@ module Syskit
                 message: "%s is not self contained", exclude: [], **instanciate_options
             )
                 actions = validate_actions(action_or_profile, exclude: exclude) do |skip|
-                    flunk "could not validate some non-Syskit actions: #{skip}, "\
-                          "probably because of required arguments. Pass the action to "\
-                          "the 'exclude' option of #{__method__}, and add a separate "\
+                    flunk "could not validate some non-Syskit actions: #{skip}, " \
+                          "probably because of required arguments. Pass the action to " \
+                          "the 'exclude' option of #{__method__}, and add a separate " \
                           "assertion test with the arguments added explicitly"
                 end
 
@@ -263,8 +263,8 @@ module Syskit
                         )
 
                     raise assertion_failure,
-                          "#{action} contains tags from another profile (found "\
-                          "#{other_profiles.map(&:name).sort.join(', ')}, "\
+                          "#{action} contains tags from another profile (found " \
+                          "#{other_profiles.map(&:name).sort.join(', ')}, " \
                           "expected #{reference_profile}"
                 end
 
@@ -309,19 +309,19 @@ module Syskit
                 exclude: [], together_with: []
             )
                 actions = validate_actions(action_or_profile, exclude: exclude) do |skip|
-                    flunk "could not validate some non-Syskit actions: #{skip}, "\
-                          "probably because of required arguments. Pass the action to "\
-                          "the 'exclude' option of #{__method__}, and add a separate "\
+                    flunk "could not validate some non-Syskit actions: #{skip}, " \
+                          "probably because of required arguments. Pass the action to " \
+                          "the 'exclude' option of #{__method__}, and add a separate " \
                           "assertion test with the arguments added explicitly"
                 end
 
                 together_with =
                     validate_actions(together_with, exclude: exclude) do |skip|
-                        flunk "could not validate some non-Syskit actions given to "\
-                              "`together_with` in #{__method__}: #{skip}, "\
-                              "probably because of "\
-                              "missing arguments. If you are passing a profile or "\
-                              "action interface and do not require to test against "\
+                        flunk "could not validate some non-Syskit actions given to " \
+                              "`together_with` in #{__method__}: #{skip}, " \
+                              "probably because of " \
+                              "missing arguments. If you are passing a profile or " \
+                              "action interface and do not require to test against " \
                               "that particular action, pass it to the 'exclude' argument"
                     end
 
@@ -421,20 +421,20 @@ module Syskit
                 exclude: [], together_with: []
             )
                 actions = validate_actions(action_or_profile, exclude: exclude) do |skip|
-                    flunk "could not validate some non-Syskit actions: #{skip}, "\
-                          "probably because of required arguments. Pass the action to "\
-                          "the 'exclude' option of #{__method__}, and add a separate "\
+                    flunk "could not validate some non-Syskit actions: #{skip}, " \
+                          "probably because of required arguments. Pass the action to " \
+                          "the 'exclude' option of #{__method__}, and add a separate " \
                           "assertion test with the arguments added explicitly"
                 end
 
                 together_with =
                     validate_actions(together_with, exclude: exclude) do |skip|
-                        flunk "could not validate some non-Syskit actions given to "\
-                            "`together_with` in #{__method__}: #{skip}, "\
-                            "probably because of "\
-                            "missing arguments. If you are passing a profile or action "\
-                            "interface and do not require to test against that "\
-                            "particular action, pass it to the 'exclude' argument"
+                        flunk "could not validate some non-Syskit actions given to " \
+                              "`together_with` in #{__method__}: #{skip}, " \
+                              "probably because of " \
+                              "missing arguments. If you are passing a profile or action " \
+                              "interface and do not require to test against that " \
+                              "particular action, pass it to the 'exclude' argument"
                     end
 
                 actions.each do |action|
@@ -539,7 +539,7 @@ module Syskit
                     unless task_context.plan
                         raise ProfileAssertionFailed.new(
                             "configure together", actions, nil
-                        ), "#{task_context} got garbage-collected before "\
+                        ), "#{task_context} got garbage-collected before " \
                            "it got configured"
                     end
                 end
