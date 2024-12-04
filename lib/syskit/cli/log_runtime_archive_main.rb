@@ -6,6 +6,7 @@
 require "pathname"
 require "thor"
 require "syskit/cli/log_runtime_archive"
+require "lib/syskit/roby_app/log_transfer_server/spawn_server"
 
 module Syskit
     module CLI
@@ -16,7 +17,6 @@ module Syskit
             end
 
             desc "watch", "watch a dataset root folder and call archiver"
-
             option :period,
                    type: :numeric, default: 600, desc: "polling period in seconds"
             option :max_size,
@@ -61,6 +61,42 @@ module Syskit
                 archiver.process_root_folder
             end
 
+            desc "watch_transfer", "watches a dataset root folder \
+                                    and periodically performs transfer"
+            option :period,
+                   type: :numeric, default: 600, desc: "polling period in seconds"
+            option :max_size,
+                   type: :numeric, default: 10_000, desc: "max log size in MB"
+            default_task def watch_transfer(src_dir, tgt_dir, server_params)
+                loop do
+                    begin
+                        transfer(src_dir, tgt_dir, server_params)
+                    rescue Errno::ENOSPC
+                        next
+                    end
+
+                    puts "Transferred pending logs, sleeping #{options[:period]}s"
+                    sleep options[:period]
+                end
+            end
+
+            desc "transfer", "transfers the datasets"
+            option :max_size,
+                   type: :numeric, default: 10_000, desc: "max log size in MB"
+            def transfer(src_dir, tgt_dir, server_params)
+                src_dir = validate_directory_exists(src_dir)
+                tgt_dir = validate_directory_exists(tgt_dir)
+                archiver = make_archiver(src_dir, tgt_dir)
+
+                archiver.process_transfer(src_dir, server_params)
+            end
+
+            desc "transfer_server", "creates the log transfer FTP server \
+                                     that runs on the main computer"
+            def transfer_server(tgt_dir, user, password, certfile)
+                create_server(tgt_dir, user, password, certfile)
+            end
+
             no_commands do
                 def validate_directory_exists(dir)
                     dir = Pathname.new(dir)
@@ -78,6 +114,12 @@ module Syskit
                     Syskit::CLI::LogRuntimeArchive.new(
                         root_dir, target_dir,
                         logger: logger, max_archive_size: options[:max_size] * (1024**2)
+                    )
+                end
+
+                def create_server(tgt_dir, user, password, certfile)
+                    RobyApp::LogTransferServer::SpawnServer.new(
+                        tgt_dir, user, password, certfile
                     )
                 end
             end

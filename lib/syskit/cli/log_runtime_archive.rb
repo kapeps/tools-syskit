@@ -2,6 +2,7 @@
 
 require "archive/tar/minitar"
 require "sys/filesystem"
+require "syskit/process_managers/remote/protocol"
 
 module Syskit
     module CLI
@@ -42,6 +43,27 @@ module Syskit
                 running = candidates.last
                 candidates.each do |child|
                     process_dataset(child, full: child != running)
+                end
+            end
+
+            # Transfer logs from a process server to the main computer server
+            #
+            # @param [Pathname] src_dir the log folder on the process server
+            # @param [Params] server_params the FTP server parameters:
+            #   { host, port, certificate, user, password }
+            def process_transfer(src_dir, server_params)
+                host, port = server_params[:host], server_params[:port]
+                socket =
+                    begin TCPSocket.new(host, port)
+                    rescue Errno::ECONNREFUSED => e
+                        raise e.class, "cannot contact process server at " \
+                                       "'#{host}:#{port}': #{e.message}"
+                    end
+                socket.write(ProcessManagers::Remote::COMMAND_LOG_UPLOAD_FILE)
+
+                candidates = self.class.find_all_dataset_folders(src_dir)
+                candidates.each do |child|
+                    Marshal.dump([server_params, Pathname(child)], socket)
                 end
             end
 
