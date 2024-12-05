@@ -2,6 +2,7 @@
 
 require "syskit/test/self"
 require "syskit/cli/log_runtime_archive_main"
+require "syskit/roby_app/tmp_root_ca"
 
 module Syskit
     module CLI
@@ -128,6 +129,78 @@ module Syskit
                 end
             end
 
+            describe "#watch_transfer" do
+                before do
+                    @src_dir = make_tmppath
+                    @tgt_dir = make_tmppath
+                    host = "127.0.0.1"
+                    ca = RobyApp::TmpRootCA.new(host)
+                    user = "nilvo"
+                    password = "nilvo123"
+
+                    server = spawn_server(@tgt_dir, user, password, ca)
+                    port = server.port
+
+                    @server_params = {
+                        host: host, port: port, certificate: "",
+                        user: user, password: password
+                    }
+                end
+
+                it "calls transfer with the specified period" do
+                    quit = Class.new(RuntimeError)
+                    called = 0
+                    flexmock(LogRuntimeArchive)
+                        .new_instances
+                        .should_receive(:process_transfer)
+                        .pass_thru do
+                            called += 1
+                            raise quit if called == 3
+                        end
+
+                    tic = Time.now
+                    assert_raises(quit) do
+                        LogRuntimeArchiveMain.start(
+                            ["watch_transfer",
+                             @src_dir, @tgt_dir, @server_params, "--period", 0.5]
+                        )
+                    end
+
+                    assert called == 3
+                    assert_operator(Time.now - tic, :>, 0.9)
+                end
+            end
+
+            describe "#transfer" do
+                before do
+                    @src_dir = make_tmppath
+                    @tgt_dir = make_tmppath
+                end
+
+                it "raises ArgumentError if src_dir does not exist" do
+                    e = assert_raises ArgumentError do
+                        call_transfer("/does/not/exist", @tgt_dir, {})
+                    end
+                    assert_equal "/does/not/exist does not exist, or is not a directory",
+                                 e.message
+                end
+
+                it "raises ArgumentError if tgt_dir does not exist" do
+                    e = assert_raises ArgumentError do
+                        call_transfer(@src_dir, "/does/not/exist", {})
+                    end
+                    assert_equal "/does/not/exist does not exist, or is not a directory",
+                                 e.message
+                end
+
+                # Call 'transfer' function instead of 'watch' to call transfer once
+                def call_transfer(src_dir, tgt_dir, params)
+                    LogRuntimeArchiveMain.start(
+                        ["transfer", src_dir, tgt_dir, params]
+                    )
+                end
+            end
+
             # Mock files sizes in bytes
             # @param [Array] size of files in MB
             def mock_files_size(sizes)
@@ -147,6 +220,13 @@ module Syskit
                             bytes_available: total_available_disk_space * 1e6
                         )
                     end
+            end
+
+            def spawn_server(tgt_dir, user, password, cert)
+                LogRuntimeArchiveMain.start(
+                    ["transfer_server",
+                     tgt_dir, user, password, cert.private_certificate_path]
+                )
             end
 
             def assert_deleted_files(deleted_files)

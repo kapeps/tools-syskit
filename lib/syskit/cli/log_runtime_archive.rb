@@ -52,7 +52,8 @@ module Syskit
             # @param [Params] server_params the FTP server parameters:
             #   { host, port, certificate, user, password }
             def process_transfer(src_dir, server_params)
-                host, port = server_params[:host], server_params[:port]
+                host = server_params[:host]
+                port = server_params[:port]
                 socket =
                     begin TCPSocket.new(host, port)
                     rescue Errno::ECONNREFUSED => e
