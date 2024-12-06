@@ -6,7 +6,7 @@
 require "pathname"
 require "thor"
 require "syskit/cli/log_runtime_archive"
-require "lib/syskit/roby_app/log_transfer_server/spawn_server"
+require "syskit/roby_app/log_transfer_server/spawn_server"
 
 module Syskit
     module CLI
@@ -52,7 +52,7 @@ module Syskit
             def archive(root_dir, target_dir)
                 root_dir = validate_directory_exists(root_dir)
                 target_dir = validate_directory_exists(target_dir)
-                archiver = make_archiver(root_dir, target_dir)
+                archiver = make_archiver(root_dir, target_dir: target_dir)
 
                 archiver.ensure_free_space(
                     options[:free_space_low_limit] * 1_000_000,
@@ -67,10 +67,13 @@ module Syskit
                    type: :numeric, default: 600, desc: "polling period in seconds"
             option :max_size,
                    type: :numeric, default: 10_000, desc: "max log size in MB"
-            default_task def watch_transfer(src_dir, tgt_dir, server_params)
+            def watch_transfer( # rubocop:disable Metrics/ParameterLists
+                base_log_dir, user, password, certfile_path, interface, port
+            )
                 loop do
                     begin
-                        transfer(src_dir, tgt_dir, server_params)
+                        transfer(base_log_dir, user, password, certfile_path,
+                                 interface, port)
                     rescue Errno::ENOSPC
                         next
                     end
@@ -83,18 +86,27 @@ module Syskit
             desc "transfer", "transfers the datasets"
             option :max_size,
                    type: :numeric, default: 10_000, desc: "max log size in MB"
-            def transfer(src_dir, tgt_dir, server_params)
-                src_dir = validate_directory_exists(src_dir)
-                tgt_dir = validate_directory_exists(tgt_dir)
-                archiver = make_archiver(src_dir, tgt_dir)
+            def transfer( # rubocop:disable Metrics/ParameterLists
+                base_log_dir, user, password, certfile_path, interface, port
+            )
+                server_params = {
+                    user: user, password: password, certfile_path: certfile_path,
+                    interface: interface, port: port
+                }
+                base_log_dir = validate_directory_exists(base_log_dir)
+                archiver = make_archiver(base_log_dir)
 
-                archiver.process_transfer(src_dir, server_params)
+                archiver.process_root_folder_transfer(server_params)
             end
 
             desc "transfer_server", "creates the log transfer FTP server \
                                      that runs on the main computer"
-            def transfer_server(tgt_dir, user, password, certfile)
-                create_server(tgt_dir, user, password, certfile)
+            def transfer_server( # rubocop:disable Metrics/ParameterLists
+                tgt_log_dir, user, password, certfile_path, interface, port
+            )
+                create_server(
+                    tgt_log_dir, user, password, certfile_path, interface, port
+                )
             end
 
             no_commands do
@@ -108,19 +120,24 @@ module Syskit
                     dir
                 end
 
-                def make_archiver(root_dir, target_dir)
+                def make_archiver(root_dir, target_dir: nil)
                     logger = Logger.new($stdout)
 
                     Syskit::CLI::LogRuntimeArchive.new(
-                        root_dir, target_dir,
+                        root_dir, target_dir: target_dir,
                         logger: logger, max_archive_size: options[:max_size] * (1024**2)
                     )
                 end
 
-                def create_server(tgt_dir, user, password, certfile)
-                    RobyApp::LogTransferServer::SpawnServer.new(
-                        tgt_dir, user, password, certfile
+                def create_server( # rubocop:disable Metrics/ParameterLists
+                    tgt_log_dir, user, password, certfile_path,
+                    interface, port
+                )
+                    server = RobyApp::LogTransferServer::SpawnServer.new(
+                        tgt_log_dir, user, password, certfile_path,
+                        interface: interface, port: port
                     )
+                    server.run
                 end
             end
         end

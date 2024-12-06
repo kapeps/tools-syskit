@@ -365,7 +365,7 @@ module Syskit
             describe ".process_root_folder" do
                 before do
                     @archive_dir = make_tmppath
-                    @process = LogRuntimeArchive.new(@root, @archive_dir)
+                    @process = LogRuntimeArchive.new(@root, target_dir: @archive_dir)
                 end
 
                 it "archives all folders, the last one only partially" do
@@ -391,7 +391,7 @@ module Syskit
                         .write(test1 = Base64.encode64(Random.bytes(1024)))
                     (dataset / "test.2.log").write(Base64.encode64(Random.bytes(1024)))
                     process = LogRuntimeArchive.new(
-                        @root, @archive_dir, max_archive_size: 1024
+                        @root, target_dir: @archive_dir, max_archive_size: 1024
                     )
                     process.process_root_folder
 
@@ -419,7 +419,7 @@ module Syskit
                     (dataset / "test.2.log")
                         .write(test2 = Base64.encode64(Random.bytes(128)))
                     process = LogRuntimeArchive.new(
-                        @root, @archive_dir, max_archive_size: 1024
+                        @root, target_dir: @archive_dir, max_archive_size: 1024
                     )
                     process.process_root_folder
 
@@ -445,7 +445,7 @@ module Syskit
                     test1 = make_random_file "test.1.log", root: dataset
                     test2 = make_random_file "test.2.log", root: dataset
                     process = LogRuntimeArchive.new(
-                        @root, @archive_dir, max_archive_size: 1024
+                        @root, target_dir: @archive_dir, max_archive_size: 1024
                     )
                     process.process_root_folder
 
@@ -516,6 +516,65 @@ module Syskit
                 end
             end
 
+            describe ".process_transfer" do
+                before do
+                    @process = LogRuntimeArchive.new(@root)
+                    interface = "127.0.0.1"
+                    ca = RobyApp::TmpRootCA.new(interface)
+                    @params = {
+                        interface: interface, port: 0,
+                        certfile_path: ca.private_certificate_path,
+                        user: "nilvo", password: "nilvo123"
+                    }
+                    @target_dir = make_tmppath
+                    @threads = []
+
+                    create_server
+                end
+
+                it "transfers datasets" do
+                    ftp = connect_to_server
+                    
+                    datasets = [
+                        make_valid_folder("20220434-2023"),
+                        make_valid_folder("20220434-2024"),
+                        make_valid_folder("20220434-2025")
+                    ]
+
+                    datasets.map do |dataset|
+                        transfer_dataset(ftp, @root / dataset, @target_dir / dataset)
+                    end
+
+                    datasets.each do |dataset|
+                        assert (@target_dir / dataset).file?
+                    end
+                end
+
+                def create_server
+                    thread = Thread.new do
+                        server = RobyApp::LogTransferServer::SpawnServer.new(
+                            @target_dir, @params[:user], @params[:password],
+                            @params[:certfile_path], interface: @params[:interface],
+                            port: @params[:port]
+                        )
+                        server.run
+                    end
+                    thread.join
+                end
+
+                def transfer_dataset(ftp, src_path, tgt_path)
+                    ftp.putbinaryfile(src_path, tgt_path)
+                end
+
+                def connect_to_server
+                    ftp = Net::FTP.new
+                    ftp.connect(@params[:interface], @params[:port])
+                    ftp.login(@params[:user], @params[:password])
+                    ftp.passive = true
+                    ftp
+                end
+            end
+
             describe "#ensure_free_space" do
                 before do
                     @archive_dir = make_tmppath
@@ -523,7 +582,7 @@ module Syskit
 
                     10.times { |i| (@archive_dir / i.to_s).write(i.to_s) }
 
-                    @archiver = LogRuntimeArchive.new(@root, @archive_dir)
+                    @archiver = LogRuntimeArchive.new(@root, target_dir: @archive_dir)
                 end
 
                 it "does nothing if there is enough free space" do

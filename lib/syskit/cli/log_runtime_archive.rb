@@ -3,6 +3,7 @@
 require "archive/tar/minitar"
 require "sys/filesystem"
 require "syskit/process_managers/remote/protocol"
+require 'net/ftp'
 
 module Syskit
     module CLI
@@ -19,7 +20,7 @@ module Syskit
             DEFAULT_MAX_ARCHIVE_SIZE = 10_000_000_000 # 10G
 
             def initialize(
-                root_dir, target_dir,
+                root_dir, target_dir: nil,
                 logger: LogRuntimeArchive.null_logger,
                 max_archive_size: DEFAULT_MAX_ARCHIVE_SIZE
             )
@@ -46,26 +47,18 @@ module Syskit
                 end
             end
 
-            # Transfer logs from a process server to the main computer server
+            # Creates a FTP server and decides which logs to transfer
             #
-            # @param [Pathname] src_dir the log folder on the process server
+            # @param [Pathname] root_dir the log folder on the process server
             # @param [Params] server_params the FTP server parameters:
-            #   { host, port, certificate, user, password }
-            def process_transfer(src_dir, server_params)
-                host = server_params[:host]
-                port = server_params[:port]
-                socket =
-                    begin TCPSocket.new(host, port)
-                    rescue Errno::ECONNREFUSED => e
-                        raise e.class, "cannot contact process server at " \
-                                       "'#{host}:#{port}': #{e.message}"
-                    end
-                socket.write(ProcessManagers::Remote::COMMAND_LOG_UPLOAD_FILE)
-
-                candidates = self.class.find_all_dataset_folders(src_dir)
+            #   { user, password, certfile_path, interface, port }
+            def process_root_folder_transfer(server_params)
+                ftp = self.class.connect_to_remote_server(server_params)
+                candidates = self.class.find_all_dataset_folders(@root_dir)
                 candidates.each do |child|
-                    Marshal.dump([server_params, Pathname(child)], socket)
+                    process_dataset_transfer(child, ftp)
                 end
+                self.class.disconnect_from_remote_server(ftp)
             end
 
             # Manages folder available space
@@ -106,9 +99,10 @@ module Syskit
 
             def process_dataset(child, full:)
                 use_existing = true
+                basename = child.basename.to_s
                 loop do
                     open_archive_for(
-                        child.basename.to_s, use_existing: use_existing
+                        basename, use_existing: use_existing
                     ) do |io|
                         if io.tell > @max_archive_size
                             use_existing = false
@@ -125,6 +119,15 @@ module Syskit
 
                     use_existing = false
                 end
+            end
+
+            def process_dataset_transfer(child, ftp)
+                basename = child.basename.to_s
+                self.class.transfer_dataset(
+                    @root_dir / basename,
+                    basename,
+                    ftp
+                )
             end
 
             # Create or open an archive
@@ -168,6 +171,17 @@ module Syskit
                     last_i = i
                     i += 1
                 end
+            end
+
+            def self.connect_to_remote_server(server_params)
+                ftp = Net::FTP.new
+                ftp.connect(server_params[:interface], server_params[:port])
+                ftp.login(server_params[:user], server_params[:password])
+                ftp
+            end
+
+            def self.disconnect_from_remote_server(ftp)
+                ftp.close if ftp
             end
 
             # Find all dataset-looking folders within a root log folder
@@ -276,6 +290,10 @@ module Syskit
                 logger = Logger.new($stdout)
                 logger.level = Logger::FATAL + 1
                 logger
+            end
+
+            def self.transfer_dataset(local_path, remote_path, ftp)
+                ftp.putbinaryfile(local_path, remote_path)
             end
 
             # Archive the given dataset

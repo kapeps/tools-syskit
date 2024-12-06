@@ -131,20 +131,20 @@ module Syskit
 
             describe "#watch_transfer" do
                 before do
-                    @src_dir = make_tmppath
-                    @tgt_dir = make_tmppath
-                    host = "127.0.0.1"
-                    ca = RobyApp::TmpRootCA.new(host)
+                    @base_log_dir = make_tmppath
+                    @tgt_log_dir = make_tmppath
+                    interface = "127.0.0.1"
+                    port = 0
+                    ca = RobyApp::TmpRootCA.new(interface)
                     user = "nilvo"
                     password = "nilvo123"
 
-                    server = spawn_server(@tgt_dir, user, password, ca)
-                    port = server.port
-
                     @server_params = {
-                        host: host, port: port, certificate: "",
-                        user: user, password: password
+                        user: user, password: password,
+                        certfile_path: ca.private_certificate_path,
+                        interface: interface, port: port
                     }
+                    server = spawn_server
                 end
 
                 it "calls transfer with the specified period" do
@@ -152,7 +152,8 @@ module Syskit
                     called = 0
                     flexmock(LogRuntimeArchive)
                         .new_instances
-                        .should_receive(:process_transfer)
+                        .should_receive(:process_root_folder_transfer)
+                        .with(@server_params)
                         .pass_thru do
                             called += 1
                             raise quit if called == 3
@@ -160,10 +161,14 @@ module Syskit
 
                     tic = Time.now
                     assert_raises(quit) do
-                        LogRuntimeArchiveMain.start(
-                            ["watch_transfer",
-                             @src_dir, @tgt_dir, @server_params, "--period", 0.5]
-                        )
+                        args = [
+                            "watch_transfer",
+                            @base_log_dir,
+                            *@server_params.values,
+                            "--period", 0.5
+                        ]
+                        pp "***", args
+                        LogRuntimeArchiveMain.start(args)
                     end
 
                     assert called == 3
@@ -173,31 +178,17 @@ module Syskit
 
             describe "#transfer" do
                 before do
-                    @src_dir = make_tmppath
-                    @tgt_dir = make_tmppath
-                end
-
-                it "raises ArgumentError if src_dir does not exist" do
-                    e = assert_raises ArgumentError do
-                        call_transfer("/does/not/exist", @tgt_dir, {})
-                    end
-                    assert_equal "/does/not/exist does not exist, or is not a directory",
-                                 e.message
-                end
-
-                it "raises ArgumentError if tgt_dir does not exist" do
-                    e = assert_raises ArgumentError do
-                        call_transfer(@src_dir, "/does/not/exist", {})
-                    end
-                    assert_equal "/does/not/exist does not exist, or is not a directory",
-                                 e.message
+                    @base_log_dir = make_tmppath
                 end
 
                 # Call 'transfer' function instead of 'watch' to call transfer once
-                def call_transfer(src_dir, tgt_dir, params)
-                    LogRuntimeArchiveMain.start(
-                        ["transfer", src_dir, tgt_dir, params]
-                    )
+                def call_transfer(src_dir, params)
+                    args = [
+                        "transfer",
+                        src_dir,
+                        *params.values
+                    ]
+                    LogRuntimeArchiveMain.start(args)
                 end
             end
 
@@ -222,11 +213,13 @@ module Syskit
                     end
             end
 
-            def spawn_server(tgt_dir, user, password, cert)
-                LogRuntimeArchiveMain.start(
-                    ["transfer_server",
-                     tgt_dir, user, password, cert.private_certificate_path]
-                )
+            def spawn_server
+                args = [
+                    "transfer_server",
+                    @tgt_log_dir,
+                    *@server_params.values
+                ]
+                LogRuntimeArchiveMain.start(args)
             end
 
             def assert_deleted_files(deleted_files)
