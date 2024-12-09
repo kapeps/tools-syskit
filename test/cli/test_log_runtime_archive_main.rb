@@ -129,22 +129,48 @@ module Syskit
                 end
             end
 
+            describe "#transfer_server" do
+                before do
+                    @tgt_log_dir = make_tmppath
+                    interface = "127.0.0.1"
+                    ca = RobyApp::TmpRootCA.new(interface)
+
+                    server_params = {
+                        user: "nilvo", password: "nilvo123",
+                        certfile_path: ca.private_certificate_path,
+                        interface: interface, port: 0
+                    }
+                end
+            end
+
             describe "#watch_transfer" do
                 before do
                     @base_log_dir = make_tmppath
                     @tgt_log_dir = make_tmppath
                     interface = "127.0.0.1"
-                    port = 0
                     ca = RobyApp::TmpRootCA.new(interface)
-                    user = "nilvo"
-                    password = "nilvo123"
 
                     @server_params = {
-                        user: user, password: password,
+                        user: "nilvo", password: "nilvo123",
                         certfile_path: ca.private_certificate_path,
-                        interface: interface, port: port
+                        interface: interface, port: 0
                     }
-                    server = spawn_server
+                    @threads = []
+                    server = nil
+                    flexmock(RobyApp::LogTransferServer::SpawnServer)
+                        .should_receive(:new)
+                        .with_any_args
+                        .pass_thru do |arg|
+                            server = arg
+                        end
+                    call_create_server
+                    @server = server
+                end
+
+                after do
+                    @server.stop
+                    @server.join
+                    @threads.each(&:kill)
                 end
 
                 it "calls transfer with the specified period" do
@@ -167,12 +193,16 @@ module Syskit
                             *@server_params.values,
                             "--period", 0.5
                         ]
-                        pp "***", args
                         LogRuntimeArchiveMain.start(args)
                     end
 
                     assert called == 3
                     assert_operator(Time.now - tic, :>, 0.9)
+                end
+
+                def call_create_server
+                    cli = LogRuntimeArchiveMain.new
+                    cli.create_server(@tgt_log_dir, *@server_params.values)
                 end
             end
 
@@ -211,15 +241,6 @@ module Syskit
                             bytes_available: total_available_disk_space * 1e6
                         )
                     end
-            end
-
-            def spawn_server
-                args = [
-                    "transfer_server",
-                    @tgt_log_dir,
-                    *@server_params.values
-                ]
-                LogRuntimeArchiveMain.start(args)
             end
 
             def assert_deleted_files(deleted_files)

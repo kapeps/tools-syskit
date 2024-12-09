@@ -109,7 +109,7 @@ module Syskit
                 )
             end
 
-            no_commands do
+            no_commands do # rubocop:disable Metrics/BlockLength
                 def validate_directory_exists(dir)
                     dir = Pathname.new(dir)
                     unless dir.directory?
@@ -124,8 +124,9 @@ module Syskit
                     logger = Logger.new($stdout)
 
                     Syskit::CLI::LogRuntimeArchive.new(
-                        root_dir, target_dir: target_dir,
-                        logger: logger, max_archive_size: options[:max_size] * (1024**2)
+                        root_dir,
+                        target_dir: target_dir, logger: logger,
+                        max_archive_size: options[:max_size] * (1024**2)
                     )
                 end
 
@@ -138,6 +139,7 @@ module Syskit
                         interface: interface, port: port
                     )
                     server.run
+                    server
                 end
             end
         end

@@ -534,7 +534,7 @@ module Syskit
 
                 it "transfers datasets" do
                     ftp = connect_to_server
-                    
+
                     datasets = [
                         make_valid_folder("20220434-2023"),
                         make_valid_folder("20220434-2024"),
@@ -554,8 +554,8 @@ module Syskit
                     thread = Thread.new do
                         server = RobyApp::LogTransferServer::SpawnServer.new(
                             @target_dir, @params[:user], @params[:password],
-                            @params[:certfile_path], interface: @params[:interface],
-                            port: @params[:port]
+                            @params[:certfile_path],
+                            interface: @params[:interface], port: @params[:port]
                         )
                         server.run
                     end

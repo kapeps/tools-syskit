@@ -3,7 +3,7 @@
 require "archive/tar/minitar"
 require "sys/filesystem"
 require "syskit/process_managers/remote/protocol"
-require 'net/ftp'
+require "net/ftp"
 
 module Syskit
     module CLI
@@ -177,11 +177,12 @@ module Syskit
                 ftp = Net::FTP.new
                 ftp.connect(server_params[:interface], server_params[:port])
                 ftp.login(server_params[:user], server_params[:password])
+                ftp.passive = true
                 ftp
             end
 
             def self.disconnect_from_remote_server(ftp)
-                ftp.close if ftp
+                ftp&.close
             end
 
             # Find all dataset-looking folders within a root log folder
