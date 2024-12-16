@@ -30,6 +30,13 @@ module Syskit
                                      PortMatcher.new(@task_m).with_name("out_d")
             end
 
+            it "can find ports with ===" do
+                plan.add(task = @task_m.new)
+                matcher = PortMatcher.new(@task_m).with_name("out_d")
+                assert matcher === task.out_d_port
+                refute matcher === task.out_f_port
+            end
+
             it "optionally allows to filter with a name pattern" do
                 plan.add(task = @task_m.new)
                 assert_matcher_finds [task.out_d_port, task.out_f_port],
