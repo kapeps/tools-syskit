@@ -206,8 +206,10 @@ module Syskit
                 action_or_profile = subject_syskit_model,
                 message: "%s is not self contained", exclude: [], **instanciate_options
             )
-                actions = assert_actions(action_or_profile, exclude: exclude)
-
+                actions = validate_assert_actions_argument(
+                    action_or_profile,
+                    exclude: exclude
+                )
                 actions.each do |act|
                     syskit_assert_action_is_self_contained(
                         act, message: message, **instanciate_options
@@ -303,10 +305,14 @@ module Syskit
                 action_or_profile = subject_syskit_model,
                 exclude: [], together_with: []
             )
-                actions = assert_actions(action_or_profile, exclude: exclude)
-
-                together_with = assert_together_with(together_with, exclude: exclude)
-
+                actions = validate_assert_actions_argument(
+                    action_or_profile,
+                    exclude: exclude
+                )
+                together_with = validate_assert_together_with_argument(
+                    together_with,
+                    exclude: exclude
+                )
                 actions.each do |action|
                     assert_can_instanciate_together(action, *together_with)
                 end
@@ -402,10 +408,14 @@ module Syskit
                 action_or_profile = subject_syskit_model,
                 exclude: [], together_with: []
             )
-                actions = assert_actions(action_or_profile, exclude: exclude)
-
-                together_with = assert_together_with(together_with, exclude: exclude)
-
+                actions = validate_assert_actions_argument(
+                    action_or_profile,
+                    exclude: exclude
+                )
+                together_with = validate_assert_together_with_argument(
+                    together_with,
+                    exclude: exclude
+                )
                 actions.each do |action|
                     assert_can_deploy_together(action, *together_with)
                 end
@@ -458,11 +468,15 @@ module Syskit
                 action_or_profile = subject_syskit_model,
                 exclude: [], together_with: []
             )
-                actions = assert_actions(action_or_profile, exclude: exclude)
-
-                together_with = assert_together_with(together_with, exclude: exclude)
-
-                assert_can_deploy_all_together(actions, *together_with)
+                actions = validate_assert_actions_argument(
+                    action_or_profile,
+                    exclude: exclude
+                )
+                together_with = validate_assert_together_with_argument(
+                    together_with,
+                    exclude: exclude
+                )
+                assert_can_deploy_together(*actions.flatten, *together_with)
             end
 
             # Spec-style call for {#assert_can_deploy_all}
@@ -475,19 +489,6 @@ module Syskit
                 action_or_profile = subject_syskit_model, together_with: []
             )
                 assert_can_deploy_all(action_or_profile, together_with: together_with)
-            end
-
-            # Tests that the given syskit-generated actions can be ALL deployed together
-            #
-            # It is stronger (and therefore includes)
-            # {assert_can_deploy_together}
-            def assert_can_deploy_all_together(*actions)
-                syskit_run_deploy_in_bulk(
-                    actions.flatten, compute_policies: true, compute_deployments: true
-                )
-            rescue Minitest::Assertion, StandardError => e
-                raise ProfileAssertionFailed.new("deploy all together", actions, e),
-                      e.message, e.backtrace
             end
 
             def syskit_run_deploy_in_bulk(
@@ -608,9 +609,9 @@ module Syskit
             # those included in 'exclude'.
             #
             # @param action_or_profile an action interface or profile
-            def assert_actions(action_or_profile, exclude: [])
+            def validate_assert_actions_argument(action_or_profile, exclude: [])
                 validate_actions(action_or_profile, exclude: exclude) do |skip|
-                    caller_method = caller[2].split("`").last.split("'").first
+                    caller_method = caller_locations(3, 1).first.label
                     flunk "could not validate some non-Syskit actions: #{skip}, " \
                           "probably because of required arguments. Pass the action to " \
                           "the 'exclude' option of #{caller_method}, and add a separate " \
@@ -623,9 +624,9 @@ module Syskit
             # validated,excluding those included in 'exclude'.
             #
             # @param together_with an action interface or profile
-            def assert_together_with(together_with, exclude: [])
+            def validate_assert_together_with_argument(together_with, exclude: [])
                 validate_actions(together_with, exclude: exclude) do |skip|
-                    caller_method = caller[2].split("`").last.split("'").first
+                    caller_method = caller_locations(3, 1).first.label
                     flunk "could not validate some non-Syskit actions given to " \
                           "`together_with` in #{caller_method}: #{skip}, probably " \
                           "because of missing arguments. If you are passing a profile " \
