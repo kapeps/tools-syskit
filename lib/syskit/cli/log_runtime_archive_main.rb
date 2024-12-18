@@ -65,15 +65,15 @@ module Syskit
                                     and periodically performs transfer"
             option :period,
                    type: :numeric, default: 600, desc: "polling period in seconds"
-            option :max_size,
-                   type: :numeric, default: 10_000, desc: "max log size in MB"
+            option :max_upload_rate,
+                   type: :numeric, default: 10, desc: "max upload rate in Mbps"
             def watch_transfer( # rubocop:disable Metrics/ParameterLists
-                base_log_dir, user, password, certfile_path, interface, port
+                source_dir, user, password, certificate, host, port, implicit_ftps
             )
                 loop do
                     begin
-                        transfer(base_log_dir, user, password, certfile_path,
-                                 interface, port)
+                        transfer(source_dir, user, password, certificate, host, port,
+                                 implicit_ftps)
                     rescue Errno::ENOSPC
                         next
                     end
@@ -84,29 +84,30 @@ module Syskit
             end
 
             desc "transfer", "transfers the datasets"
-            option :max_size,
-                   type: :numeric, default: 10_000, desc: "max log size in MB"
+            option :max_upload_rate,
+                   type: :numeric, default: 10, desc: "max upload rate in Mbps"
             def transfer( # rubocop:disable Metrics/ParameterLists
-                base_log_dir, user, password, certfile_path, interface, port
+                source_dir, user, password, certificate, host, port, implicit_ftps
             )
-                server_params = {
-                    user: user, password: password, certfile_path: certfile_path,
-                    interface: interface, port: port
-                }
-                base_log_dir = validate_directory_exists(base_log_dir)
-                archiver = make_archiver(base_log_dir)
+                source_dir = validate_directory_exists(source_dir)
+                archiver = make_archiver(source_dir)
 
+                server_params = {
+                    host: host, port: port, certificate: certificate,
+                    user: user, password: password,
+                    max_upload_rate: options[:max_upload_rate],
+                    implicit_ftps: implicit_ftps
+                }
                 archiver.process_root_folder_transfer(server_params)
             end
 
             desc "transfer_server", "creates the log transfer FTP server \
                                      that runs on the main computer"
             def transfer_server( # rubocop:disable Metrics/ParameterLists
-                tgt_log_dir, user, password, certfile_path, interface, port
+                target_dir, user, password, certificate, host, implicit_ftps
             )
-                create_server(
-                    tgt_log_dir, user, password, certfile_path, interface, port
-                )
+                create_server(target_dir, user, password, certificate, host, port,
+                              implicit_ftps)
             end
 
             no_commands do # rubocop:disable Metrics/BlockLength
@@ -131,15 +132,15 @@ module Syskit
                 end
 
                 def create_server( # rubocop:disable Metrics/ParameterLists
-                    tgt_log_dir, user, password, certfile_path,
-                    interface, port
+                    target_dir, user, password, certificate, host, port, implicit_ftps
                 )
-                    server = RobyApp::LogTransferServer::SpawnServer.new(
-                        tgt_log_dir, user, password, certfile_path,
-                        interface: interface, port: port
+                    RobyApp::LogTransferServer::SpawnServer.new(
+                        target_dir, user, password,
+                        certificate,
+                        interface: host,
+                        port: port,
+                        implicit_ftps: implicit_ftps
                     )
-                    server.run
-                    server
                 end
             end
         end

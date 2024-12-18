@@ -31,6 +31,19 @@ module Syskit
                 @max_archive_size = max_archive_size
             end
 
+            # Iterate over all datasets in a Roby log root folder and transfer them
+            # through FTP server
+            #
+            # @param [Params] server_params the FTP server parameters:
+            # { host, port, certificate, user, password, implicit_ftps, max_upload_rate }
+            def process_root_folder_transfer(server_params)
+                candidates = self.class.find_all_dataset_folders(@root_dir)
+                candidates.each do |child|
+                    basename = child.basename.to_s
+                    process_dataset_transfer(basename, server_params)
+                end
+            end
+
             # Iterate over all datasets in a Roby log root folder and archive them
             #
             # The method assumes the last dataset is the current one (i.e. the running
@@ -45,20 +58,6 @@ module Syskit
                 candidates.each do |child|
                     process_dataset(child, full: child != running)
                 end
-            end
-
-            # Creates a FTP server and decides which logs to transfer
-            #
-            # @param [Pathname] root_dir the log folder on the process server
-            # @param [Params] server_params the FTP server parameters:
-            #   { user, password, certfile_path, interface, port }
-            def process_root_folder_transfer(server_params)
-                ftp = self.class.connect_to_remote_server(server_params)
-                candidates = self.class.find_all_dataset_folders(@root_dir)
-                candidates.each do |child|
-                    process_dataset_transfer(child, ftp)
-                end
-                self.class.disconnect_from_remote_server(ftp)
             end
 
             # Manages folder available space
@@ -121,13 +120,15 @@ module Syskit
                 end
             end
 
-            def process_dataset_transfer(child, ftp)
-                basename = child.basename.to_s
-                self.class.transfer_dataset(
-                    @root_dir / basename,
-                    basename,
-                    ftp
+            def process_dataset_transfer(file, server_params)
+                ftp = Runtime::Remote::Server::FTPUpload.new(
+                    server_params[:host], server_params[:port],
+                    server_params[:certificate], server_params[:user],
+                    server_params[:password], @root_dir / file,
+                    max_upload_rate: server_params[:max_upload_rate] || Float::INFINITY,
+                    implicit_ftps: server_params[:implicit_ftps]
                 )
+                ftp.open_and_transfer
             end
 
             # Create or open an archive
@@ -171,18 +172,6 @@ module Syskit
                     last_i = i
                     i += 1
                 end
-            end
-
-            def self.connect_to_remote_server(server_params)
-                ftp = Net::FTP.new
-                ftp.connect(server_params[:interface], server_params[:port])
-                ftp.login(server_params[:user], server_params[:password])
-                ftp.passive = true
-                ftp
-            end
-
-            def self.disconnect_from_remote_server(ftp)
-                ftp&.close
             end
 
             # Find all dataset-looking folders within a root log folder
@@ -291,10 +280,6 @@ module Syskit
                 logger = Logger.new($stdout)
                 logger.level = Logger::FATAL + 1
                 logger
-            end
-
-            def self.transfer_dataset(local_path, remote_path, ftp)
-                ftp.putbinaryfile(local_path, remote_path)
             end
 
             # Archive the given dataset
