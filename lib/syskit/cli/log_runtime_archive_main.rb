@@ -6,7 +6,7 @@
 require "pathname"
 require "thor"
 require "syskit/cli/log_runtime_archive"
-require "syskit/roby_app/log_transfer_server/spawn_server"
+require "syskit/runtime/server/spawn_server"
 
 module Syskit
     module CLI
@@ -104,9 +104,9 @@ module Syskit
             desc "transfer_server", "creates the log transfer FTP server \
                                      that runs on the main computer"
             def transfer_server( # rubocop:disable Metrics/ParameterLists
-                target_dir, user, password, certificate, host, implicit_ftps
+                target_dir, user, password, certfile_path, host, implicit_ftps
             )
-                create_server(target_dir, user, password, certificate, host, port,
+                create_server(target_dir, user, password, certfile_path, host, port,
                               implicit_ftps)
             end
 
@@ -132,11 +132,11 @@ module Syskit
                 end
 
                 def create_server( # rubocop:disable Metrics/ParameterLists
-                    target_dir, user, password, certificate, host, port, implicit_ftps
+                    target_dir, user, password, certfile_path, host, port, implicit_ftps
                 )
-                    RobyApp::LogTransferServer::SpawnServer.new(
+                    Runtime::Server::SpawnServer.new(
                         target_dir, user, password,
-                        certificate,
+                        certfile_path,
                         interface: host,
                         port: port,
                         implicit_ftps: implicit_ftps
