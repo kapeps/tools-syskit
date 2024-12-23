@@ -3,6 +3,7 @@
 require "archive/tar/minitar"
 require "sys/filesystem"
 require "syskit/process_managers/remote/protocol"
+require "syskit/roby_app/log_transfer_server/ftp_upload"
 require "net/ftp"
 
 module Syskit
@@ -19,6 +20,9 @@ module Syskit
         class LogRuntimeArchive
             DEFAULT_MAX_ARCHIVE_SIZE = 10_000_000_000 # 10G
 
+            FTPParameters = Struct.new(:host, :port, :certificate, :user, :password,
+                :implicit_ftps, :max_upload_rate, keyword_init: true)
+
             def initialize(
                 root_dir, target_dir: nil,
                 logger: LogRuntimeArchive.null_logger,
@@ -34,8 +38,7 @@ module Syskit
             # Iterate over all datasets in a Roby log root folder and transfer them
             # through FTP server
             #
-            # @param [Params] server_params the FTP server parameters:
-            # { host, port, certificate, user, password, implicit_ftps, max_upload_rate }
+            # @param [Params] server_params the FTP server parameters
             def process_root_folder_transfer(server_params)
                 candidates = self.class.find_all_dataset_folders(@root_dir)
                 candidates.each do |child|
@@ -120,13 +123,12 @@ module Syskit
                 end
             end
 
-            def process_dataset_transfer(file, server_params)
-                ftp = Runtime::Remote::Server::FTPUpload.new(
-                    server_params[:host], server_params[:port],
-                    server_params[:certificate], server_params[:user],
-                    server_params[:password], @root_dir / file,
-                    max_upload_rate: server_params[:max_upload_rate] || Float::INFINITY,
-                    implicit_ftps: server_params[:implicit_ftps]
+            def process_dataset_transfer(file, server)
+                ftp = RobyApp::LogTransferServer::FTPUpload.new(
+                    server.host, server.port, server.certificate, server.user,
+                    server.password, file,
+                    max_upload_rate: server.max_upload_rate || Float::INFINITY,
+                    implicit_ftps: server.implicit_ftps
                 )
                 ftp.open_and_transfer
             end
