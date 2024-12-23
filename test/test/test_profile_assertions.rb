@@ -636,6 +636,168 @@ module Syskit
                 end
             end
 
+            describe "assert_can_deploy_all" do
+                include ProfileAssertions
+
+                # Needed by ProfileAssertions
+                attr_reader :subject_syskit_model
+
+                before do
+                    @test_profile = Actions::Profile.new("TestProfile")
+                    @deployment_m = syskit_stub_deployment_model(@task_m)
+                    @subject_syskit_model = @test_profile
+                end
+
+                it "passes for definitions that refer to deployed tasks" do
+                    @test_profile.use_deployment @deployment_m
+                    @test_profile.define(
+                        "test", @cmp_m.use(@srv_m => @task_m)
+                    )
+                    assert_can_deploy_all(@test_profile)
+                end
+
+                it "fails for definitions that have tasks that are not deployed" do
+                    @test_profile.define "test", @cmp_m.use(@srv_m => @task_m)
+                    e = assert_raises(ProfileAssertions::ProfileAssertionFailed) do
+                        assert_can_deploy_all(@test_profile)
+                    end
+
+                    assert_match(
+                        /cannot deploy the following tasks.*Task.*child test of Cmp/m,
+                        PP.pp(e.each_original_exception.first, +"")
+                    )
+                end
+
+                it "fails for definitions whose services are represented by tags" do
+                    @test_profile.tag "test", @srv_m
+                    @test_profile.define(
+                        "test", @cmp_m.use(@srv_m => @test_profile.test_tag)
+                    )
+                    e = assert_raises(ProfileAssertions::ProfileAssertionFailed) do
+                        assert_can_deploy_all(@test_profile)
+                    end
+                    assert_match(
+                        /cannot\ find\ a\ concrete\ implementation.*
+                         TestProfile.test_tag/mx,
+                        PP.pp(e.each_original_exception.first, +"")
+                    )
+                end
+
+                it "fails for definitions with abstract elements that are not tags" do
+                    @test_profile.define "test", @cmp_m
+                    e = assert_raises(ProfileAssertions::ProfileAssertionFailed) do
+                        assert_can_deploy_all(@test_profile)
+                    end
+                    assert_match(
+                        /cannot\ find\ a\ concrete\ implementation.*
+                         Models::Placeholder<Srv>/mx,
+                        PP.pp(e.each_original_exception.first, +"")
+                    )
+                end
+
+                it "fails for definitions that use tags from other profiles" do
+                    other_profile = Actions::Profile.new("Other")
+                    other_profile.tag "test", @srv_m
+                    @test_profile.define(
+                        "test", @cmp_m.use(@srv_m => other_profile.test_tag)
+                    )
+
+                    e = assert_raises(ProfileAssertions::ProfileAssertionFailed) do
+                        assert_can_deploy_all(@test_profile)
+                    end
+                    assert_match(
+                        /cannot find a concrete implementation.*Other.test_tag/m,
+                        PP.pp(e.each_original_exception.first, +"")
+                    )
+                end
+
+                it "handles plain instance requirements" do
+                    assert_can_deploy_all(
+                        @cmp_m
+                        .to_instance_requirements
+                        .use_deployment(@deployment_m)
+                        .use(@srv_m => @task_m)
+                    )
+                end
+
+                it "allows deploying together with the actions or profile" do
+                    @test_profile.define("test", @cmp_m.use(@srv_m => @task_m))
+                    assert_can_deploy_all(
+                        @test_profile.test_def,
+                        together_with: @task_m.to_instance_requirements
+                                              .use_deployment(@deployment_m)
+                    )
+                end
+
+                it "fails if some actions are not resolvable" do
+                    flexmock(self)
+                        .should_receive(:BulkAssertAtomicActions)
+                        .with(action = flexmock, exclude: (excluded = flexmock))
+                        .and_return([[],
+                                     [flexmock(name: "some"), flexmock(name: "action")]])
+
+                    e = assert_raises(Minitest::Assertion) do
+                        assert_can_deploy_all(action, exclude: excluded)
+                    end
+                    message = "could not validate some non-Syskit actions: 'action', " \
+                              "'some', probably because of required arguments. Pass " \
+                              "the action to the 'exclude' option of " \
+                              "assert_can_deploy_all, and add a separate assertion " \
+                              "test with the arguments added explicitly"
+                    assert_equal message, e.message
+                end
+
+                it "fails if some actions in together_with are not resolvable" do
+                    action, together_with, exclude = 3.times.map { flexmock }
+                    flexmock(self)
+                        .should_receive(:BulkAssertAtomicActions)
+                        .with(action, exclude: exclude)
+                        .and_return([[], []])
+                    flexmock(self)
+                        .should_receive(:BulkAssertAtomicActions)
+                        .with(together_with, exclude: exclude)
+                        .and_return([[],
+                                     [flexmock(name: "some"), flexmock(name: "action")]])
+
+                    e = assert_raises(Minitest::Assertion) do
+                        assert_can_deploy_all(
+                            action, exclude: exclude, together_with: together_with
+                        )
+                    end
+                    message =
+                        "could not validate some non-Syskit actions given " \
+                        "to `together_with` in assert_can_deploy_all: 'action', " \
+                        "'some', probably because of " \
+                        "missing arguments. If you are passing a profile or action " \
+                        "interface and do not require to test against that particular " \
+                        "action, pass it to the 'exclude' argument"
+                    assert_equal message, e.message
+                end
+
+                it "runs syskit_run_deploy_in_bulk with all actions" do
+                    @test_profile.define("test", @cmp_m.use(@srv_m => @task_m))
+                    @test_profile.define("test_42", @cmp_m.use(@srv_m => @task_m))
+
+                    actions, skipped = BulkAssertAtomicActions(
+                        [
+                            @test_profile.test_def,
+                            @test_profile.test_42_def,
+                            @task_m.to_instance_requirements
+                                .use_deployment(@deployment_m)
+                        ]
+                    )
+                    flexmock(self)
+                        .should_receive(:syskit_run_deploy_in_bulk)
+                        .with(actions, compute_policies: true, compute_deployments: true)
+
+                    assert skipped.empty?
+                    assert_can_deploy_all(
+                        together_with: @task_m.to_instance_requirements
+                                              .use_deployment(@deployment_m)
+                    )
+                end
+            end
+
             describe ".each_combination" do
                 it "calculates and yields each possible combination of its arguments" do
                     result = ProfileAssertions.each_combination(
