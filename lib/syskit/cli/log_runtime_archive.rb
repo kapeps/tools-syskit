@@ -2,9 +2,7 @@
 
 require "archive/tar/minitar"
 require "sys/filesystem"
-require "syskit/process_managers/remote/protocol"
 require "syskit/roby_app/log_transfer_server/ftp_upload"
-require "net/ftp"
 
 module Syskit
     module CLI
@@ -41,9 +39,9 @@ module Syskit
             # @param [Params] server_params the FTP server parameters
             def process_root_folder_transfer(server_params)
                 candidates = self.class.find_all_dataset_folders(@root_dir)
+                running = candidates.last
                 candidates.each do |child|
-                    basename = child.basename.to_s
-                    process_dataset_transfer(basename, server_params)
+                    process_dataset_transfer(child, server_params, full: child != running)
                 end
             end
 
@@ -123,13 +121,43 @@ module Syskit
                 end
             end
 
-            def process_dataset_transfer(file, server)
+            def process_dataset_transfer(child, server, full:)
+                # TODO: Create a folder if it does not exist open_dir_for
+                self.class.transfer_dataset(child, server, full: full, logger: @logger)
+            end
+
+            # Transfer the given dataset
+            def self.transfer_dataset(
+                dataset_path, server,
+                full:, logger: null_logger
+            )
+                logger.info(
+                    "Transfering dataset #{dataset_path} in #{full ? 'full' : 'partial'} mode"
+                )
+                candidates = each_file_from_path(dataset_path).to_a
+
+                complete, candidates =
+                    if full
+                        archive_filter_candidates_full(candidates)
+                    else
+                        archive_filter_candidates_partial(candidates)
+                    end
+
+                candidates.each_with_index do |child_path, i|
+                    transfer_file(child_path, server, logger: logger)
+                end
+
+                complete
+            end
+
+            def self.transfer_file(file, server, logger: null_logger)
                 ftp = RobyApp::LogTransferServer::FTPUpload.new(
                     server.host, server.port, server.certificate, server.user,
                     server.password, file,
                     max_upload_rate: server.max_upload_rate || Float::INFINITY,
                     implicit_ftps: server.implicit_ftps
                 )
+                logger.info "Transfering #{file}"
                 ftp.open_and_transfer
             end
 

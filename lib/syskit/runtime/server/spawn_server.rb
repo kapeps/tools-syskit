@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "English"
+require "syskit/runtime/server/driver"
 
 module Syskit
     module Runtime
