@@ -57,9 +57,9 @@ module Syskit
             def ===(port)
                 return unless port.kind_of?(Port)
 
-                (@name_filter === object.name) &&
-                    (!@type_filter || @type_filter == object.type) &&
-                    (@component_matcher === object.component)
+                (@name_filter === port.name) &&
+                    (!@type_filter || @type_filter == port.type) &&
+                    (@component_matcher === port.component)
             end
 
             def each_in_plan(plan, &block)
