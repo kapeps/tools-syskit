@@ -270,9 +270,21 @@ describe Syskit::NetworkGeneration::LoggerConfigurationSupport do
     end
 
     def create_deployment_model_with_logger
+        Orocos.registry.create_compound "/Time" do |b|
+            b.microseconds = "uint64_t"
+            b.tv_sec = "uint64_t"
+            b.tv_usec = "uint64_t"
+        end
+        test_t = Orocos.registry.create_compound "/Test" do |b|
+            b.time = "/Time"
+            b.other_type = "/int"
+        end
+        test_t.field_metadata["time"].set("role", "logical_time")
+
         task_m = @task_m = Syskit::TaskContext.new_submodel do
             output_port "out1", "/double"
             output_port "out2", "/int"
+            output_port "out3", "/Test"
         end
         logger_m = @logger_m = create_logger_model
 
