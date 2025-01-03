@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "syskit/runtime/server/write_only_disk_file_system"
+
 module Syskit
     module Runtime
         module Server

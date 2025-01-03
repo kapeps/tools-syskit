@@ -46,7 +46,7 @@ module Syskit
                             private_data_connection: false, port: @port,
                             implicit_ftps: @implicit_ftps,
                             ssl: { verify_mode: OpenSSL::SSL::VERIFY_PEER,
-                                    ca_file: cert_path }
+                                   ca_file: cert_path }
                         ) do |ftp|
                             ftp.login(@user, @password)
                             pp "login"
@@ -75,7 +75,7 @@ module Syskit
                     File.open(@file) do |file_io|
                         pp "File io:", file_io
                         ftp.storbinary("STOR #{File.basename(@file)}",
-                                        file_io, Net::FTP::DEFAULT_BLOCKSIZE) do |buf|
+                                       file_io, Net::FTP::DEFAULT_BLOCKSIZE) do |buf|
                             now = Time.now
                             rate_limit(buf.size, now, last)
                             last = Time.now

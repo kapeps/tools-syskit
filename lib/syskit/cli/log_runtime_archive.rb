@@ -19,7 +19,8 @@ module Syskit
             DEFAULT_MAX_ARCHIVE_SIZE = 10_000_000_000 # 10G
 
             FTPParameters = Struct.new(:host, :port, :certificate, :user, :password,
-                :implicit_ftps, :max_upload_rate, keyword_init: true)
+                                       :implicit_ftps, :max_upload_rate,
+                                       keyword_init: true)
 
             def initialize(
                 root_dir, target_dir: nil,
@@ -122,7 +123,6 @@ module Syskit
             end
 
             def process_dataset_transfer(child, server, full:)
-                # TODO: Create a folder if it does not exist open_dir_for
                 self.class.transfer_dataset(child, server, full: full, logger: @logger)
             end
 
@@ -132,7 +132,8 @@ module Syskit
                 full:, logger: null_logger
             )
                 logger.info(
-                    "Transfering dataset #{dataset_path} in #{full ? 'full' : 'partial'} mode"
+                    "Transfering dataset #{dataset_path} in " \
+                    "#{full ? 'full' : 'partial'} mode"
                 )
                 candidates = each_file_from_path(dataset_path).to_a
 
@@ -143,7 +144,7 @@ module Syskit
                         archive_filter_candidates_partial(candidates)
                     end
 
-                candidates.each_with_index do |child_path, i|
+                candidates.each do |child_path|
                     transfer_file(child_path, server, logger: logger)
                 end
 

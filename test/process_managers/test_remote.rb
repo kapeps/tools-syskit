@@ -506,7 +506,7 @@ describe Syskit::ProcessManagers::Remote do
         end
     end
 
-    class TestLogTransferServer < Syskit::RobyApp::LogTransferServer::SpawnServer
+    class TestLogTransferServer < Syskit::Runtime::Server::SpawnServer
         attr_reader :certfile_path
 
         def initialize(target_dir, user, password)

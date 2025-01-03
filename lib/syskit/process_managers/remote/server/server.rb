@@ -581,13 +581,15 @@ module Syskit
                             localfile = log_upload_sanitize_path(Pathname(localfile))
                         rescue Exception => e # rubocop:disable Lint/RescueException
                             @log_upload_results_queue <<
-                                LogUploadState::Result.new(localfile, false, e.message)
+                                RobyApp::LogTransferServer::LogUploadState::Result.new(
+                                    localfile, false, e.message
+                                )
                             return
                         end
 
                         info "queueing upload of #{localfile} to #{host}:#{port}"
                         @log_upload_command_queue <<
-                            FTPUpload.new(
+                            RobyApp::LogTransferServer::FTPUpload.new(
                                 host, port, certificate,
                                 user, password, localfile,
                                 max_upload_rate: max_upload_rate || Float::INFINITY,
@@ -631,7 +633,9 @@ module Syskit
                             end
                         end
 
-                        LogUploadState.new(@log_upload_pending.value, results)
+                        RobyApp::LogTransferServer::LogUploadState.new(
+                            @log_upload_pending.value, results
+                        )
                     end
                 end
             end
