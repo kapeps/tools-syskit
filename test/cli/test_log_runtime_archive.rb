@@ -2,6 +2,7 @@
 
 require "syskit/test/self"
 require "syskit/cli/log_runtime_archive"
+require "syskit/runtime/server/spawn_server"
 
 module Syskit
     module CLI
@@ -516,62 +517,86 @@ module Syskit
                 end
             end
 
-            describe ".process_transfer" do
+            describe "FTP" do
                 before do
-                    @process = LogRuntimeArchive.new(@root)
-                    interface = "127.0.0.1"
-                    ca = RobyApp::TmpRootCA.new(interface)
-                    @params = {
-                        interface: interface, port: 0,
-                        certfile_path: ca.private_certificate_path,
-                        user: "nilvo", password: "nilvo123"
-                    }
-                    @target_dir = make_tmppath
-                    @threads = []
+                    host = "127.0.0.1"
+                    @ca = RobyApp::TmpRootCA.new(host)
+                    @params = LogRuntimeArchive::FTPParameters.new(host: host, port: 21,
+                        certificate:@ca.certificate,
+                        user: "user", password: "password",
+                        implicit_ftps: true, max_upload_rate: 10)
 
-                    create_server
+                    @target_dir = make_tmppath
+                    @server = create_server
+                    @process = LogRuntimeArchive.new(@root)
                 end
 
-                it "transfers datasets" do
-                    ftp = connect_to_server
-
-                    datasets = [
-                        make_valid_folder("20220434-2023"),
-                        make_valid_folder("20220434-2024"),
-                        make_valid_folder("20220434-2025")
-                    ]
-
-                    datasets.map do |dataset|
-                        transfer_dataset(ftp, @root / dataset, @target_dir / dataset)
-                    end
-
-                    datasets.each do |dataset|
-                        assert (@target_dir / dataset).file?
-                    end
+                after do
+                    @server.stop
+                    @server.join
+                    @ca.dispose
+                    @ca = nil
+                    @server = nil
                 end
 
                 def create_server
-                    thread = Thread.new do
-                        server = RobyApp::LogTransferServer::SpawnServer.new(
-                            @target_dir, @params[:user], @params[:password],
-                            @params[:certfile_path],
-                            interface: @params[:interface], port: @params[:port]
-                        )
-                        server.run
+                    server = Runtime::Server::SpawnServer.new(
+                        @target_dir, @params.user, @params.password,
+                        @ca.private_certificate_path,
+                        interface: @params.host,
+                        implicit_ftps: @params.implicit_ftps,
+                        debug: true, verbose: true
+                    )
+                    @params.port = server.port
+                    server
+                end
+
+                describe ".process_root_folder_transfer" do
+                    it "transfers all files from root folder through FTP" do
+                        dataset_A = make_valid_folder("PATH_A")
+                        dataset_B = make_valid_folder("PATH_B")
+                        make_random_file "test.0.log", root: dataset_A
+                        make_random_file "test.1.log", root: dataset_A
+                        make_random_file "test.log", root: dataset_B
+
+                        @process.process_root_folder_transfer(@params)
+
+                        assert(File.exist?(@target_dir / "PATH_A" / "test.0.log"))
+                        assert(File.exist?(@target_dir / "PATH_A" / "test.1.log"))
+                        assert(File.exist?(@target_dir / "PATH_B" / "test.log"))
                     end
-                    thread.join
                 end
 
-                def transfer_dataset(ftp, src_path, tgt_path)
-                    ftp.putbinaryfile(src_path, tgt_path)
+                describe ".process_dataset_transfer" do
+                    it "transfers all files from a folder through FTP" do
+                        dataset = make_valid_folder("PATH")
+                        make_random_file "test.0.log", root: dataset
+                        make_random_file "test.1.log", root: dataset
+                        @process.process_dataset_transfer(dataset, @params, full: true)
+
+                        assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
+                        assert(File.exist?(@target_dir / "PATH" / "test.1.log"))
+                    end
                 end
 
-                def connect_to_server
-                    ftp = Net::FTP.new
-                    ftp.connect(@params[:interface], @params[:port])
-                    ftp.login(@params[:user], @params[:password])
-                    ftp.passive = true
-                    ftp
+                describe ".transfer_dataset" do
+                    it "transfers a dataset through FTP" do
+                        dataset = make_valid_folder("PATH")
+                        make_random_file "test.0.log", root: dataset
+                        @process.transfer_dataset(dataset, @params, full: true)
+
+                        assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
+                    end
+                end
+
+                describe ".transfer_file" do
+                    it "transfers a file through FTP" do
+                        dataset = make_valid_folder("PATH")
+                        make_random_file "test.log", root: dataset
+                        @process.transfer_file(dataset / "test.log", @params, full: true)
+
+                        assert(File.exist?(@target_dir / "PATH" / "test.log"))
+                    end
                 end
             end
 
