@@ -21,7 +21,7 @@ module Syskit
                 attr_reader :port
 
                 # tgt_dir must be an absolute path
-                def initialize(
+                def initialize( # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
                     tgt_dir,
                     user,
                     password,

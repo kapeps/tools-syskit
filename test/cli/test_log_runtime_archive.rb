@@ -521,10 +521,12 @@ module Syskit
                 before do
                     host = "127.0.0.1"
                     @ca = RobyApp::TmpRootCA.new(host)
-                    @params = LogRuntimeArchive::FTPParameters.new(host: host, port: 21,
-                        certificate:@ca.certificate,
+                    @params = LogRuntimeArchive::FTPParameters.new(
+                        host: host, port: 21,
+                        certificate: @ca.certificate,
                         user: "user", password: "password",
-                        implicit_ftps: true, max_upload_rate: 10)
+                        implicit_ftps: true, max_upload_rate: 10
+                    )
 
                     @target_dir = make_tmppath
                     @server = create_server
@@ -553,11 +555,11 @@ module Syskit
 
                 describe ".process_root_folder_transfer" do
                     it "transfers all files from root folder through FTP" do
-                        dataset_A = make_valid_folder("PATH_A")
-                        dataset_B = make_valid_folder("PATH_B")
-                        make_random_file "test.0.log", root: dataset_A
-                        make_random_file "test.1.log", root: dataset_A
-                        make_random_file "test.log", root: dataset_B
+                        dataset_a = make_valid_folder("PATH_A")
+                        dataset_b = make_valid_folder("PATH_B")
+                        make_random_file "test.0.log", root: dataset_a
+                        make_random_file "test.1.log", root: dataset_a
+                        make_random_file "test.log", root: dataset_b
 
                         @process.process_root_folder_transfer(@params)
 
@@ -583,7 +585,7 @@ module Syskit
                     it "transfers a dataset through FTP" do
                         dataset = make_valid_folder("PATH")
                         make_random_file "test.0.log", root: dataset
-                        @process.transfer_dataset(dataset, @params, full: true)
+                        LogRuntimeArchive.transfer_dataset(dataset, @params, full: true)
 
                         assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
                     end
@@ -593,7 +595,7 @@ module Syskit
                     it "transfers a file through FTP" do
                         dataset = make_valid_folder("PATH")
                         make_random_file "test.log", root: dataset
-                        @process.transfer_file(dataset / "test.log", @params, full: true)
+                        LogRuntimeArchive.transfer_file(dataset / "test.log", @params)
 
                         assert(File.exist?(@target_dir / "PATH" / "test.log"))
                     end

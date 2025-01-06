@@ -129,20 +129,6 @@ module Syskit
                 end
             end
 
-            describe "#transfer_server" do
-                before do
-                    @tgt_log_dir = make_tmppath
-                    interface = "127.0.0.1"
-                    ca = RobyApp::TmpRootCA.new(interface)
-
-                    server_params = {
-                        user: "nilvo", password: "nilvo123",
-                        certfile_path: ca.private_certificate_path,
-                        interface: interface, port: 0
-                    }
-                end
-            end
-
             describe "#watch_transfer" do
                 before do
                     @base_log_dir = make_tmppath
@@ -151,13 +137,15 @@ module Syskit
                     ca = RobyApp::TmpRootCA.new(interface)
 
                     @server_params = {
+                        host: interface, port: 0,
+                        certficate: ca.private_certificate_path,
                         user: "nilvo", password: "nilvo123",
-                        certfile_path: ca.private_certificate_path,
-                        interface: interface, port: 0
+                        max_upload_rate: 10,
+                        implicit_ftps: true
                     }
                     @threads = []
                     server = nil
-                    flexmock(RobyApp::LogTransferServer::SpawnServer)
+                    flexmock(Runtime::Server::SpawnServer)
                         .should_receive(:new)
                         .with_any_args
                         .pass_thru do |arg|
@@ -202,7 +190,9 @@ module Syskit
 
                 def call_create_server
                     cli = LogRuntimeArchiveMain.new
-                    cli.create_server(@tgt_log_dir, *@server_params.values)
+                    modified_params = @server_params.dup
+                    modified_params.delete(:max_upload_rate)
+                    cli.create_server(@tgt_log_dir, *modified_params.values)
                 end
             end
 

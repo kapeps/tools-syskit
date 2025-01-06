@@ -65,14 +65,16 @@ module Syskit
                                     and periodically performs transfer"
             option :period,
                    type: :numeric, default: 600, desc: "polling period in seconds"
+            option :max_size,
+                   type: :numeric, default: 10_000, desc: "max log size in MB"
             option :max_upload_rate,
                    type: :numeric, default: 10, desc: "max upload rate in Mbps"
             def watch_transfer( # rubocop:disable Metrics/ParameterLists
-                source_dir, user, password, certificate, host, port, implicit_ftps
+                source_dir, host, port, certfile, user, password, implicit_ftps
             )
                 loop do
                     begin
-                        transfer(source_dir, user, password, certificate, host, port,
+                        transfer(source_dir, host, port, certfile, user, password,
                                  implicit_ftps)
                     rescue Errno::ENOSPC
                         next
@@ -84,29 +86,32 @@ module Syskit
             end
 
             desc "transfer", "transfers the datasets"
+            option :max_size,
+                   type: :numeric, default: 10_000, desc: "max log size in MB"
             option :max_upload_rate,
                    type: :numeric, default: 10, desc: "max upload rate in Mbps"
             def transfer( # rubocop:disable Metrics/ParameterLists
-                source_dir, user, password, certificate, host, port, implicit_ftps
+                source_dir, host, port, certfile, user, password, implicit_ftps
             )
                 source_dir = validate_directory_exists(source_dir)
                 archiver = make_archiver(source_dir)
 
                 server_params = {
-                    host: host, port: port, certificate: certificate,
+                    host: host, port: port, certfile: certfile,
                     user: user, password: password,
                     max_upload_rate: options[:max_upload_rate],
                     implicit_ftps: implicit_ftps
                 }
+                pp "*** *** ***", server_params
                 archiver.process_root_folder_transfer(server_params)
             end
 
             desc "transfer_server", "creates the log transfer FTP server \
                                      that runs on the main computer"
             def transfer_server( # rubocop:disable Metrics/ParameterLists
-                target_dir, user, password, certfile_path, host, implicit_ftps
+                target_dir, host, port, certfile, user, password, implicit_ftps
             )
-                create_server(target_dir, user, password, certfile_path, host, port,
+                create_server(target_dir, host, port, certfile, user, password,
                               implicit_ftps)
             end
 
@@ -132,7 +137,7 @@ module Syskit
                 end
 
                 def create_server( # rubocop:disable Metrics/ParameterLists
-                    target_dir, user, password, certfile_path, host, port, implicit_ftps
+                    target_dir, host, port, certfile_path, user, password, implicit_ftps
                 )
                     Runtime::Server::SpawnServer.new(
                         target_dir, user, password,
