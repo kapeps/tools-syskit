@@ -10,7 +10,8 @@ module Syskit
                 include Ftpd::TranslateExceptions
 
                 def initialize(data_dir)
-                    set_data_dir data_dir
+                    # Ftpd base methods expect data_dir to be a string
+                    set_data_dir data_dir.to_s
                 end
 
                 # Write a file to disk if it does not already exist.
