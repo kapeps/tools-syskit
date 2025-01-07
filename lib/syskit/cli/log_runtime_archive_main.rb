@@ -102,7 +102,6 @@ module Syskit
                     max_upload_rate: options[:max_upload_rate],
                     implicit_ftps: implicit_ftps
                 }
-                pp "*** *** ***", server_params
                 archiver.process_root_folder_transfer(server_params)
             end
 
@@ -144,7 +143,8 @@ module Syskit
                         certfile_path,
                         interface: host,
                         port: port,
-                        implicit_ftps: implicit_ftps
+                        implicit_ftps: implicit_ftps,
+                        debug: true
                     )
                 end
             end

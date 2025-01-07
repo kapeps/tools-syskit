@@ -49,7 +49,6 @@ module Syskit
                                    ca_file: cert_path }
                         ) do |ftp|
                             ftp.login(@user, @password)
-                            pp "login"
                             yield(ftp)
                         end
                     end
@@ -59,7 +58,6 @@ module Syskit
                 #
                 # @return [LogUploadState::Result]
                 def open_and_transfer
-                    pp "open and transfer"
                     open { |ftp| transfer(ftp) }
                     LogUploadState::Result.new(@file, true, nil)
                 rescue StandardError => e
@@ -71,9 +69,8 @@ module Syskit
                 # @param [Net::FTP] ftp
                 def transfer(ftp)
                     last = Time.now
-                    pp "transfer file:", @file
-                    File.open(@file) do |file_io|
-                        pp "File io:", file_io
+                    File.open(@file, "w+") do |file_io|
+                        ensure_parent_path_exists(ftp)
                         ftp.storbinary("STOR #{File.basename(@file)}",
                                        file_io, Net::FTP::DEFAULT_BLOCKSIZE) do |buf|
                             now = Time.now

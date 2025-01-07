@@ -576,8 +576,8 @@ module Syskit
                         make_random_file "test.1.log", root: dataset
                         @process.process_dataset_transfer(dataset, @params, full: true)
 
-                        assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
-                        assert(File.exist?(@target_dir / "PATH" / "test.1.log"))
+                        assert(File.exist?(@target_dir / "test.0.log"))
+                        assert(File.exist?(@target_dir / "test.1.log"))
                     end
                 end
 

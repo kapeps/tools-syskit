@@ -158,7 +158,6 @@ module Syskit
                     max_upload_rate: server.max_upload_rate || Float::INFINITY,
                     implicit_ftps: server.implicit_ftps
                 )
-                logger.info "Transfering #{file}"
                 ftp.open_and_transfer
             end
 
