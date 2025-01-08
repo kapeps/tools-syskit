@@ -39,10 +39,10 @@ module Syskit
             #
             # @param [Params] server_params the FTP server parameters
             def process_root_folder_transfer(server_params)
-                candidates = self.class.find_all_dataset_folders(@root_dir)
+                candidates = @root_dir.children
                 running = candidates.last
                 candidates.each do |child|
-                    process_dataset_transfer(child, server_params, full: child != running)
+                    process_dataset_transfer(child, server_params, @root_dir, full: child != running)
                 end
             end
 
@@ -122,13 +122,13 @@ module Syskit
                 end
             end
 
-            def process_dataset_transfer(child, server, full:)
-                self.class.transfer_dataset(child, server, full: full, logger: @logger)
+            def process_dataset_transfer(child, server, root, full:)
+                self.class.transfer_dataset(child, server, root, full: full, logger: @logger)
             end
 
             # Transfer the given dataset
             def self.transfer_dataset(
-                dataset_path, server,
+                dataset_path, server, root,
                 full:, logger: null_logger
             )
                 logger.info(
@@ -145,20 +145,20 @@ module Syskit
                     end
 
                 candidates.each do |child_path|
-                    transfer_file(child_path, server, logger: logger)
+                    transfer_file(child_path, server, root, logger: logger)
                 end
 
                 complete
             end
 
-            def self.transfer_file(file, server, logger: null_logger)
+            def self.transfer_file(file, server, root, logger: null_logger)
                 ftp = RobyApp::LogTransferServer::FTPUpload.new(
                     server.host, server.port, server.certificate, server.user,
                     server.password, file,
                     max_upload_rate: server.max_upload_rate || Float::INFINITY,
                     implicit_ftps: server.implicit_ftps
                 )
-                ftp.open_and_transfer
+                ftp.open_and_transfer(root)
             end
 
             # Create or open an archive

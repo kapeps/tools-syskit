@@ -6,6 +6,7 @@ module Syskit
             # Custom write-only file system that detects collision between files
             class WriteOnlyDiskFileSystem
                 include Ftpd::DiskFileSystem::Base
+                include Ftpd::DiskFileSystem::Mkdir
                 include Ftpd::DiskFileSystem::FileWriting
                 include Ftpd::TranslateExceptions
 

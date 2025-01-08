@@ -57,20 +57,34 @@ module Syskit
                 # Open the connection and transfer the file
                 #
                 # @return [LogUploadState::Result]
-                def open_and_transfer
-                    open { |ftp| transfer(ftp) }
+                def open_and_transfer(root)
+                    open { |ftp| transfer(ftp, root) }
                     LogUploadState::Result.new(@file, true, nil)
                 rescue StandardError => e
                     LogUploadState::Result.new(@file, false, e.message)
                 end
 
+                def ensure_dataset_path_exists(ftp, root)
+                    dataset_path = File.dirname(@file.relative_path_from(root))
+
+                    dataset_path.split("/") do |folder|
+                        begin
+                            ftp.chdir(folder)
+                        rescue
+                            ftp.mkdir(folder)
+                            ftp.chdir(folder)
+                        end
+                    end
+                end
+
                 # Do transfer the file through the given connection
                 #
                 # @param [Net::FTP] ftp
-                def transfer(ftp)
+                # @param [Pathname] root the archive root folder
+                def transfer(ftp, root)
                     last = Time.now
                     File.open(@file, "w+") do |file_io|
-                        ensure_parent_path_exists(ftp)
+                        ensure_dataset_path_exists(ftp, root)
                         ftp.storbinary("STOR #{File.basename(@file)}",
                                        file_io, Net::FTP::DEFAULT_BLOCKSIZE) do |buf|
                             now = Time.now
