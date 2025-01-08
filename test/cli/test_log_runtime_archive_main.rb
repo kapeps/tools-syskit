@@ -128,22 +128,29 @@ module Syskit
                     )
                 end
             end
+            
+            describe "#transfer_server" do
+                before do
+                    @target_dir = make_tmppath
+                    @server_params = server_params
+                end
+
+                it "creates an FTP server" do
+                    flexmock(Runtime::Server::SpawnServer)
+                        .new_instances
+                        .should_receive(:initialize).with(
+                            @target_dir, *@server_params.values
+                        ).once
+                end
+            end
 
             describe "#watch_transfer" do
                 before do
-                    @base_log_dir = make_tmppath
-                    @tgt_log_dir = make_tmppath
-                    interface = "127.0.0.1"
-                    ca = RobyApp::TmpRootCA.new(interface)
+                    @source_dir = make_tmppath
+                    @target_dir = make_tmppath
+                    @server_params = server_params
+                    @max_upload_rate = 10
 
-                    @server_params = {
-                        host: interface, port: 0,
-                        certficate: ca.private_certificate_path,
-                        user: "nilvo", password: "nilvo123",
-                        max_upload_rate: 10,
-                        implicit_ftps: true
-                    }
-                    @threads = []
                     server = nil
                     flexmock(Runtime::Server::SpawnServer)
                         .should_receive(:new)
@@ -158,16 +165,22 @@ module Syskit
                 after do
                     @server.stop
                     @server.join
-                    @threads.each(&:kill)
                 end
 
                 it "calls transfer with the specified period" do
+                    mock_files_size([])
+                    mock_available_space(200) # 70 MB
+
                     quit = Class.new(RuntimeError)
                     called = 0
                     flexmock(LogRuntimeArchive)
                         .new_instances
                         .should_receive(:process_root_folder_transfer)
-                        .with(@server_params)
+                        .with(
+                            @server_params.merge(
+                                { max_upload_rate: @max_upload_rate }
+                            )
+                        )
                         .pass_thru do
                             called += 1
                             raise quit if called == 3
@@ -177,7 +190,7 @@ module Syskit
                     assert_raises(quit) do
                         args = [
                             "watch_transfer",
-                            @base_log_dir,
+                            @source_dir,
                             *@server_params.values,
                             "--period", 0.5
                         ]
@@ -190,26 +203,42 @@ module Syskit
 
                 def call_create_server
                     cli = LogRuntimeArchiveMain.new
-                    modified_params = @server_params.dup
-                    modified_params.delete(:max_upload_rate)
-                    cli.create_server(@tgt_log_dir, *modified_params.values)
+                    cli.create_server(@target_dir, *@server_params.values)
                 end
             end
 
             describe "#transfer" do
                 before do
-                    @base_log_dir = make_tmppath
+                    @server_params = server_params
+                end
+
+                it "raises ArgumentError if source_dir does not exist" do
+                    e = assert_raises ArgumentError do
+                        call_transfer("/does/not/exist")
+                    end
+                    assert_equal "/does/not/exist does not exist, or is not a directory",
+                                 e.message
                 end
 
                 # Call 'transfer' function instead of 'watch' to call transfer once
-                def call_transfer(src_dir, params)
+                def call_transfer(source_dir)
                     args = [
                         "transfer",
-                        src_dir,
-                        *params.values
+                        source_dir,
+                        *@server_params.values
                     ]
                     LogRuntimeArchiveMain.start(args)
                 end
+            end
+
+            def server_params
+                interface = "127.0.0.1"
+                ca = RobyApp::TmpRootCA.new(interface)
+
+                { host: interface, port: 0,
+                  certificate: ca.private_certificate_path,
+                  user: "nilvo", password: "nilvo123",
+                  implicit_ftps: true }
             end
 
             # Mock files sizes in bytes
