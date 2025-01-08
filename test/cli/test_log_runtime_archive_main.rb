@@ -128,7 +128,7 @@ module Syskit
                     )
                 end
             end
-            
+
             describe "#transfer_server" do
                 before do
                     @target_dir = make_tmppath

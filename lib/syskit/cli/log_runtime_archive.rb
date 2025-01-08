@@ -39,7 +39,7 @@ module Syskit
             #
             # @param [Params] server_params the FTP server parameters
             def process_root_folder_transfer(server_params)
-                candidates = @root_dir.children
+                candidates = self.class.find_all_dataset_folders(@root_dir)
                 running = candidates.last
                 candidates.each do |child|
                     process_dataset_transfer(
