@@ -68,12 +68,10 @@ module Syskit
                     dataset_path = File.dirname(@file.relative_path_from(root))
 
                     dataset_path.split("/") do |folder|
-                        begin
-                            ftp.chdir(folder)
-                        rescue
-                            ftp.mkdir(folder)
-                            ftp.chdir(folder)
-                        end
+                        ftp.chdir(folder)
+                    rescue e
+                        ftp.mkdir(folder)
+                        ftp.chdir(folder)
                     end
                 end
 

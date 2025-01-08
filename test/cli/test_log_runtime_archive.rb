@@ -573,7 +573,9 @@ module Syskit
                         dataset = make_valid_folder("PATH")
                         make_random_file "test.0.log", root: dataset
                         make_random_file "test.1.log", root: dataset
-                        @process.process_dataset_transfer(dataset, @params, @root, full: true)
+                        @process.process_dataset_transfer(
+                            dataset, @params, @root, full: true
+                        )
 
                         assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
                         assert(File.exist?(@target_dir / "PATH" / "test.1.log"))
@@ -584,7 +586,9 @@ module Syskit
                         make_random_file "test.0.log", root: dataset
                         make_random_file "test.1.log", root: dataset
 
-                        @process.process_dataset_transfer(dataset, @params, @root, full: true)
+                        @process.process_dataset_transfer(
+                            dataset, @params, @root, full: true
+                        )
 
                         assert(
                             File.exist?(@target_dir / "PATH/TO/DATASET" / "test.0.log")
@@ -596,7 +600,9 @@ module Syskit
                     it "transfers a dataset through FTP" do
                         dataset = make_valid_folder("PATH")
                         make_random_file "test.0.log", root: dataset
-                        LogRuntimeArchive.transfer_dataset(dataset, @params, @root, full: true)
+                        LogRuntimeArchive.transfer_dataset(
+                            dataset, @params, @root, full: true
+                        )
 
                         assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
                     end
@@ -606,7 +612,9 @@ module Syskit
                     it "transfers a file through FTP" do
                         dataset = make_valid_folder("PATH")
                         make_random_file "test.log", root: dataset
-                        LogRuntimeArchive.transfer_file(dataset / "test.log", @params, @root)
+                        LogRuntimeArchive.transfer_file(
+                            dataset / "test.log", @params, @root
+                        )
 
                         assert(File.exist?(@target_dir / "PATH" / "test.log"))
                     end

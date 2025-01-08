@@ -42,7 +42,9 @@ module Syskit
                 candidates = @root_dir.children
                 running = candidates.last
                 candidates.each do |child|
-                    process_dataset_transfer(child, server_params, @root_dir, full: child != running)
+                    process_dataset_transfer(
+                        child, server_params, @root_dir, full: child != running
+                    )
                 end
             end
 
@@ -123,7 +125,9 @@ module Syskit
             end
 
             def process_dataset_transfer(child, server, root, full:)
-                self.class.transfer_dataset(child, server, root, full: full, logger: @logger)
+                self.class.transfer_dataset(
+                    child, server, root, full: full, logger: @logger
+                )
             end
 
             # Transfer the given dataset
@@ -145,13 +149,13 @@ module Syskit
                     end
 
                 candidates.each do |child_path|
-                    transfer_file(child_path, server, root, logger: logger)
+                    transfer_file(child_path, server, root)
                 end
 
                 complete
             end
 
-            def self.transfer_file(file, server, root, logger: null_logger)
+            def self.transfer_file(file, server, root)
                 ftp = RobyApp::LogTransferServer::FTPUpload.new(
                     server.host, server.port, server.certificate, server.user,
                     server.password, file,
