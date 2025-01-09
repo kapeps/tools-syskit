@@ -143,8 +143,7 @@ module Syskit
                         certificate,
                         interface: host,
                         port: port,
-                        implicit_ftps: implicit_ftps,
-                        debug: true
+                        implicit_ftps: implicit_ftps
                     )
                 end
             end

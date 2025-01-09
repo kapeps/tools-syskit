@@ -131,23 +131,37 @@ module Syskit
 
             describe "#transfer_server" do
                 before do
-                    @target_dir = make_tmppath
                     @server_params = server_params
+
+                    server = nil
+                    flexmock(Runtime::Server::SpawnServer)
+                        .should_receive(:new)
+                        .with_any_args
+                        .pass_thru do |arg|
+                            server = arg
+                        end
+                    call_create_server(make_tmppath, @server_params)
+                    @server = server
                 end
 
-                it "creates an FTP server" do
-                    flexmock(Runtime::Server::SpawnServer)
-                        .new_instances
-                        .should_receive(:initialize).with(
-                            @target_dir, *@server_params.values
-                        ).once
+                after do
+                    @server.stop
+                end
+
+                it "successfully creates an FTP server" do
+                    Net::FTP.open(
+                        @server_params[:host], port: @server.port,
+                        implicit_ftps: @server_params[:implicit_ftps],
+                        ssl: { verify_mode: OpenSSL::SSL::VERIFY_NONE }
+                    ) do |ftp|
+                        ftp.login(@server_params[:user], @server_params[:password])
+                    end
                 end
             end
 
             describe "#watch_transfer" do
                 before do
                     @source_dir = make_tmppath
-                    @target_dir = make_tmppath
                     @server_params = server_params
                     @max_upload_rate = 10
 
@@ -158,7 +172,7 @@ module Syskit
                         .pass_thru do |arg|
                             server = arg
                         end
-                    call_create_server
+                    call_create_server(make_tmppath, @server_params)
                     @server = server
                 end
 
@@ -197,11 +211,6 @@ module Syskit
                     assert called == 3
                     assert_operator(Time.now - tic, :>, 0.9)
                 end
-
-                def call_create_server
-                    cli = LogRuntimeArchiveMain.new
-                    cli.create_server(@target_dir, *@server_params.values)
-                end
             end
 
             describe "#transfer" do
@@ -226,6 +235,11 @@ module Syskit
                     ]
                     LogRuntimeArchiveMain.start(args)
                 end
+            end
+
+            def call_create_server(tgt_dir, server_params)
+                cli = LogRuntimeArchiveMain.new
+                cli.create_server(tgt_dir, *server_params.values)
             end
 
             def server_params
