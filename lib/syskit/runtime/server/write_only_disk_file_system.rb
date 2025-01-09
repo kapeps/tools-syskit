@@ -12,7 +12,7 @@ module Syskit
 
                 def initialize(data_dir)
                     # Ftpd base methods expect data_dir to be a string
-                    unless data_dir.respond_to?(to_s)
+                    unless data_dir.respond_to?(:to_s)
                         raise ArgumentError,
                               "data_dir should be convertible into string"
                     end
