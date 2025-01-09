@@ -567,6 +567,8 @@ module Syskit
                         assert(File.exist?(@target_dir / "20220434-2023" / "test.0.log"))
                         assert(File.exist?(@target_dir / "20220434-2023" / "test.1.log"))
                         assert(File.exist?(@target_dir / "20220434-2024" / "test.0.log"))
+                        # log manager considers dataset_b logs as currently running
+                        # Because it isn't finished yet it does not transfer the last log
                         refute(File.exist?(@target_dir / "20220434-2024" / "test.1.log"))
                     end
                 end
