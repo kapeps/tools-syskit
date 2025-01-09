@@ -553,17 +553,21 @@ module Syskit
                 end
 
                 describe ".process_root_folder_transfer" do
-                    it "transfers all files from root folder through FTP" do
+                    it "transfers all finished dataset files from root folder "\
+                       "through FTP" do
                         dataset_a = make_valid_folder("20220434-2023")
                         dataset_b = make_valid_folder("20220434-2024")
                         make_random_file "test.0.log", root: dataset_a
                         make_random_file "test.1.log", root: dataset_a
-                        make_random_file "test.log", root: dataset_b
+                        make_random_file "test.0.log", root: dataset_b
+                        make_random_file "test.1.log", root: dataset_b
 
                         @process.process_root_folder_transfer(@params)
 
                         assert(File.exist?(@target_dir / "20220434-2023" / "test.0.log"))
-                        assert(File.exist?(@target_dir / "20220434-2024" / "test.log"))
+                        assert(File.exist?(@target_dir / "20220434-2023" / "test.1.log"))
+                        assert(File.exist?(@target_dir / "20220434-2024" / "test.0.log"))
+                        refute(File.exist?(@target_dir / "20220434-2024" / "test.1.log"))
                     end
                 end
 
