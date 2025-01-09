@@ -168,9 +168,6 @@ module Syskit
                 end
 
                 it "calls transfer with the specified period" do
-                    mock_files_size([])
-                    mock_available_space(200) # 70 MB
-
                     quit = Class.new(RuntimeError)
                     called = 0
                     flexmock(LogRuntimeArchive)
