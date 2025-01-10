@@ -150,7 +150,8 @@ module Syskit
 
                 it "successfully creates an FTP server" do
                     Net::FTP.open(
-                        @server_params[:host], port: @server.port,
+                        @server_params[:host],
+                        port: @server.port,
                         implicit_ftps: @server_params[:implicit_ftps],
                         ssl: { verify_mode: OpenSSL::SSL::VERIFY_NONE }
                     ) do |ftp|
