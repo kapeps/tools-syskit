@@ -162,7 +162,7 @@ module Syskit
                     max_upload_rate: server.max_upload_rate || Float::INFINITY,
                     implicit_ftps: server.implicit_ftps
                 )
-                ftp.open_and_transfer(root)
+                ftp.open_and_transfer(root: root)
             end
 
             # Create or open an archive

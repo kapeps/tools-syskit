@@ -57,7 +57,7 @@ module Syskit
                 # Open the connection and transfer the file
                 #
                 # @return [LogUploadState::Result]
-                def open_and_transfer(root)
+                def open_and_transfer(root: nil)
                     open { |ftp| transfer(ftp, root) }
                     LogUploadState::Result.new(@file, true, nil)
                 rescue StandardError => e
@@ -81,8 +81,9 @@ module Syskit
                 # @param [Pathname] root the archive root folder
                 def transfer(ftp, root)
                     last = Time.now
-                    File.open(@file, "w+") do |file_io|
-                        ensure_dataset_path_exists(ftp, root)
+                    opening_mode = root ? "w+" : "r"
+                    File.open(@file, opening_mode) do |file_io|
+                        ensure_dataset_path_exists(ftp, root) if root
                         ftp.storbinary("STOR #{File.basename(@file)}",
                                        file_io, Net::FTP::DEFAULT_BLOCKSIZE) do |buf|
                             now = Time.now
