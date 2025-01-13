@@ -164,7 +164,7 @@ module Syskit
                 before do
                     @source_dir = make_tmppath
                     @server_params = server_params
-                    @max_upload_rate = 10
+                    @max_upload_rate = rate_mbps_to_bps(10)
 
                     server = nil
                     flexmock(Runtime::Server::SpawnServer)
@@ -211,6 +211,11 @@ module Syskit
 
                     assert called == 3
                     assert_operator(Time.now - tic, :>, 0.9)
+                end
+
+                # Converts rate in Mbps to bps
+                def rate_mbps_to_bps(rate_mbps)
+                    rate_mbps / 10 ** 6
                 end
             end
 

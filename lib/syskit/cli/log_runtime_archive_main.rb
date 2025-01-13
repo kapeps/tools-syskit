@@ -67,7 +67,7 @@ module Syskit
                    type: :numeric, default: 600, desc: "polling period in seconds"
             option :max_size,
                    type: :numeric, default: 10_000, desc: "max log size in MB"
-            option :max_upload_rate,
+            option :max_upload_rate_mbps,
                    type: :numeric, default: 10, desc: "max upload rate in Mbps"
             def watch_transfer( # rubocop:disable Metrics/ParameterLists
                 source_dir, host, port, certificate, user, password, implicit_ftps
@@ -88,7 +88,7 @@ module Syskit
             desc "transfer", "transfers the datasets"
             option :max_size,
                    type: :numeric, default: 10_000, desc: "max log size in MB"
-            option :max_upload_rate,
+            option :max_upload_rate_mbps,
                    type: :numeric, default: 10, desc: "max upload rate in Mbps"
             def transfer( # rubocop:disable Metrics/ParameterLists
                 source_dir, host, port, certificate, user, password, implicit_ftps
@@ -100,7 +100,7 @@ module Syskit
                     host: host, port: port, certificate: certificate,
                     user: user, password: password,
                     implicit_ftps: implicit_ftps,
-                    max_upload_rate: options[:max_upload_rate]
+                    max_upload_rate: rate_mbps_to_bps(options[:max_upload_rate_mbps])
                 }
                 archiver.process_root_folder_transfer(server_params)
             end
@@ -115,6 +115,11 @@ module Syskit
             end
 
             no_commands do # rubocop:disable Metrics/BlockLength
+                # Converts rate in Mbps to bps
+                def rate_mbps_to_bps(rate_mbps)
+                    rate_mbps / 10 ** 6
+                end
+
                 def validate_directory_exists(dir)
                     dir = Pathname.new(dir)
                     unless dir.directory?

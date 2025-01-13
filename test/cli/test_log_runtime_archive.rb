@@ -525,7 +525,7 @@ module Syskit
                         host: host, port: 21,
                         certificate: @ca.certificate,
                         user: "user", password: "password",
-                        implicit_ftps: true, max_upload_rate: 10
+                        implicit_ftps: true, max_upload_rate: rate_mbps_to_bps(10)
                     )
 
                     @target_dir = make_tmppath
@@ -623,6 +623,11 @@ module Syskit
 
                         assert(File.exist?(@target_dir / "PATH" / "test.log"))
                     end
+                end
+
+                # Converts rate in Mbps to bps
+                def rate_mbps_to_bps(rate_mbps)
+                    rate_mbps / 10 ** 6
                 end
             end
 
