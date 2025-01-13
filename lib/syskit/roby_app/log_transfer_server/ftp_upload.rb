@@ -69,7 +69,7 @@ module Syskit
 
                     dataset_path.split("/") do |folder|
                         ftp.chdir(folder)
-                    rescue StandardError => _e
+                    rescue Net::FTPPermError => _e
                         ftp.mkdir(folder)
                         ftp.chdir(folder)
                     end
