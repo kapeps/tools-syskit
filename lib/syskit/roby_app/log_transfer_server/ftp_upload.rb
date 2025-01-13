@@ -64,7 +64,7 @@ module Syskit
                     LogUploadState::Result.new(@file, false, e.message)
                 end
 
-                def ensure_dataset_path_exists(ftp, root)
+                def chdir_to_file_directory(ftp, root)
                     dataset_path = File.dirname(@file.relative_path_from(root))
 
                     dataset_path.split("/") do |folder|
@@ -81,7 +81,7 @@ module Syskit
                 # @param [Pathname] root the archive root folder
                 def transfer(ftp, root)
                     last = Time.now
-                    ensure_dataset_path_exists(ftp, root) if root
+                    chdir_to_file_directory(ftp, root) if root
                     File.open(@file) do |file_io|
                         ftp.storbinary("STOR #{File.basename(@file)}",
                                        file_io, Net::FTP::DEFAULT_BLOCKSIZE) do |buf|

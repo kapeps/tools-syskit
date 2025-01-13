@@ -215,7 +215,7 @@ module Syskit
 
                 # Converts rate in Mbps to bps
                 def rate_mbps_to_bps(rate_mbps)
-                    rate_mbps / 10 ** 6
+                    rate_mbps / (10**6)
                 end
             end
 

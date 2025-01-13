@@ -117,7 +117,7 @@ module Syskit
             no_commands do # rubocop:disable Metrics/BlockLength
                 # Converts rate in Mbps to bps
                 def rate_mbps_to_bps(rate_mbps)
-                    rate_mbps / 10 ** 6
+                    rate_mbps / (10**6)
                 end
 
                 def validate_directory_exists(dir)

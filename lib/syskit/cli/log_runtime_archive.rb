@@ -22,6 +22,14 @@ module Syskit
                                        :implicit_ftps, :max_upload_rate,
                                        keyword_init: true)
 
+            # Initializes the LogRuntimeArchive
+            #
+            # @param [Pathname] root_dir the logs directory
+            # @param [Pathname] target_dir the path to store the file in the archive,
+            #   should be nil in transfer mode, as the logs will be transferred directly
+            #   to the ftp server @see process_root_folder_transfer
+            # @param [Logger] logger the log structure
+            # @param [Integer] max_archive_size the max size of the archive
             def initialize(
                 root_dir, target_dir: nil,
                 logger: LogRuntimeArchive.null_logger,
