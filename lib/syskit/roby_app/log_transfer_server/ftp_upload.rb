@@ -81,9 +81,8 @@ module Syskit
                 # @param [Pathname] root the archive root folder
                 def transfer(ftp, root)
                     last = Time.now
-                    opening_mode = root ? "w+" : "r"
-                    File.open(@file, opening_mode) do |file_io|
-                        ensure_dataset_path_exists(ftp, root) if root
+                    ensure_dataset_path_exists(ftp, root) if root
+                    File.open(@file) do |file_io|
                         ftp.storbinary("STOR #{File.basename(@file)}",
                                        file_io, Net::FTP::DEFAULT_BLOCKSIZE) do |buf|
                             now = Time.now
