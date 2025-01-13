@@ -102,10 +102,9 @@ module Syskit
 
             def process_dataset(child, full:)
                 use_existing = true
-                basename = child.basename.to_s
                 loop do
                     open_archive_for(
-                        basename, use_existing: use_existing
+                        child.basename.to_s, use_existing: use_existing
                     ) do |io|
                         if io.tell > @max_archive_size
                             use_existing = false
