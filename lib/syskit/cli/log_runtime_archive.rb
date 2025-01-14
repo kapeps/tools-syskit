@@ -2,6 +2,7 @@
 
 require "archive/tar/minitar"
 require "sys/filesystem"
+require "syskit/roby_app/log_transfer_server/ftp_upload"
 
 module Syskit
     module CLI
@@ -17,8 +18,20 @@ module Syskit
         class LogRuntimeArchive
             DEFAULT_MAX_ARCHIVE_SIZE = 10_000_000_000 # 10G
 
+            FTPParameters = Struct.new(:host, :port, :certificate, :user, :password,
+                                       :implicit_ftps, :max_upload_rate,
+                                       keyword_init: true)
+
+            # Initializes the LogRuntimeArchive
+            #
+            # @param [Pathname] root_dir the logs directory
+            # @param [Pathname] target_dir the path to store the file in the archive,
+            #   should be nil in transfer mode, as the logs will be transferred directly
+            #   to the ftp server @see process_root_folder_transfer
+            # @param [Logger] logger the log structure
+            # @param [Integer] max_archive_size the max size of the archive
             def initialize(
-                root_dir, target_dir,
+                root_dir, target_dir: nil,
                 logger: LogRuntimeArchive.null_logger,
                 max_archive_size: DEFAULT_MAX_ARCHIVE_SIZE
             )
@@ -27,6 +40,20 @@ module Syskit
                 @root_dir = root_dir
                 @target_dir = target_dir
                 @max_archive_size = max_archive_size
+            end
+
+            # Iterate over all datasets in a Roby log root folder and transfer them
+            # through FTP server
+            #
+            # @param [Params] server_params the FTP server parameters
+            def process_root_folder_transfer(server_params)
+                candidates = self.class.find_all_dataset_folders(@root_dir)
+                running = candidates.last
+                candidates.each do |child|
+                    process_dataset_transfer(
+                        child, server_params, @root_dir, full: child != running
+                    )
+                end
             end
 
             # Iterate over all datasets in a Roby log root folder and archive them
@@ -102,6 +129,47 @@ module Syskit
 
                     use_existing = false
                 end
+            end
+
+            def process_dataset_transfer(child, server, root, full:)
+                self.class.transfer_dataset(
+                    child, server, root, full: full, logger: @logger
+                )
+            end
+
+            # Transfer the given dataset
+            def self.transfer_dataset(
+                dataset_path, server, root,
+                full:, logger: null_logger
+            )
+                logger.info(
+                    "Transfering dataset #{dataset_path} in " \
+                    "#{full ? 'full' : 'partial'} mode"
+                )
+                candidates = each_file_from_path(dataset_path).to_a
+
+                complete, candidates =
+                    if full
+                        archive_filter_candidates_full(candidates)
+                    else
+                        archive_filter_candidates_partial(candidates)
+                    end
+
+                candidates.each do |child_path|
+                    transfer_file(child_path, server, root)
+                end
+
+                complete
+            end
+
+            def self.transfer_file(file, server, root)
+                ftp = RobyApp::LogTransferServer::FTPUpload.new(
+                    server.host, server.port, server.certificate, server.user,
+                    server.password, file,
+                    max_upload_rate: server.max_upload_rate || Float::INFINITY,
+                    implicit_ftps: server.implicit_ftps
+                )
+                ftp.open_and_transfer(root: root)
             end
 
             # Create or open an archive

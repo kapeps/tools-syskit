@@ -2,6 +2,7 @@
 
 require "syskit/test/self"
 require "syskit/cli/log_runtime_archive"
+require "syskit/runtime/server/spawn_server"
 
 module Syskit
     module CLI
@@ -365,7 +366,7 @@ module Syskit
             describe ".process_root_folder" do
                 before do
                     @archive_dir = make_tmppath
-                    @process = LogRuntimeArchive.new(@root, @archive_dir)
+                    @process = LogRuntimeArchive.new(@root, target_dir: @archive_dir)
                 end
 
                 it "archives all folders, the last one only partially" do
@@ -391,7 +392,7 @@ module Syskit
                         .write(test1 = Base64.encode64(Random.bytes(1024)))
                     (dataset / "test.2.log").write(Base64.encode64(Random.bytes(1024)))
                     process = LogRuntimeArchive.new(
-                        @root, @archive_dir, max_archive_size: 1024
+                        @root, target_dir: @archive_dir, max_archive_size: 1024
                     )
                     process.process_root_folder
 
@@ -419,7 +420,7 @@ module Syskit
                     (dataset / "test.2.log")
                         .write(test2 = Base64.encode64(Random.bytes(128)))
                     process = LogRuntimeArchive.new(
-                        @root, @archive_dir, max_archive_size: 1024
+                        @root, target_dir: @archive_dir, max_archive_size: 1024
                     )
                     process.process_root_folder
 
@@ -445,7 +446,7 @@ module Syskit
                     test1 = make_random_file "test.1.log", root: dataset
                     test2 = make_random_file "test.2.log", root: dataset
                     process = LogRuntimeArchive.new(
-                        @root, @archive_dir, max_archive_size: 1024
+                        @root, target_dir: @archive_dir, max_archive_size: 1024
                     )
                     process.process_root_folder
 
@@ -516,6 +517,120 @@ module Syskit
                 end
             end
 
+            describe "FTP" do
+                before do
+                    host = "127.0.0.1"
+                    @ca = RobyApp::TmpRootCA.new(host)
+                    @params = LogRuntimeArchive::FTPParameters.new(
+                        host: host, port: 21,
+                        certificate: @ca.certificate,
+                        user: "user", password: "password",
+                        implicit_ftps: true, max_upload_rate: rate_mbps_to_bps(10)
+                    )
+
+                    @target_dir = make_tmppath
+                    @server = create_server
+                    @process = LogRuntimeArchive.new(@root)
+                end
+
+                after do
+                    @server.stop
+                    @server.join
+                    @ca.dispose
+                    @ca = nil
+                    @server = nil
+                end
+
+                def create_server
+                    server = Runtime::Server::SpawnServer.new(
+                        @target_dir, @params.user, @params.password,
+                        @ca.private_certificate_path,
+                        interface: @params.host,
+                        implicit_ftps: @params.implicit_ftps
+                    )
+                    @params.port = server.port
+                    server
+                end
+
+                describe ".process_root_folder_transfer" do
+                    it "transfers all finished dataset files from root folder " \
+                       "through FTP" do
+                        dataset_a = make_valid_folder("20220434-2023")
+                        dataset_b = make_valid_folder("20220434-2024")
+                        make_random_file "test.0.log", root: dataset_a
+                        make_random_file "test.1.log", root: dataset_a
+                        make_random_file "test.0.log", root: dataset_b
+                        make_random_file "test.1.log", root: dataset_b
+
+                        @process.process_root_folder_transfer(@params)
+
+                        assert(File.exist?(@target_dir / "20220434-2023" / "test.0.log"))
+                        assert(File.exist?(@target_dir / "20220434-2023" / "test.1.log"))
+                        assert(File.exist?(@target_dir / "20220434-2024" / "test.0.log"))
+                        # log manager considers dataset_b logs as currently running
+                        # Because it isn't finished yet it does not transfer the last log
+                        refute(File.exist?(@target_dir / "20220434-2024" / "test.1.log"))
+                    end
+                end
+
+                describe ".process_dataset_transfer" do
+                    it "transfers all files from a folder through FTP" do
+                        dataset = make_valid_folder("PATH")
+                        make_random_file "test.0.log", root: dataset
+                        make_random_file "test.1.log", root: dataset
+                        @process.process_dataset_transfer(
+                            dataset, @params, @root, full: true
+                        )
+
+                        assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
+                        assert(File.exist?(@target_dir / "PATH" / "test.1.log"))
+                    end
+
+                    it "makes sure hierarchy of dataset folders is created" do
+                        dataset = make_valid_folder("PATH/TO/DATASET")
+                        make_random_file "test.0.log", root: dataset
+                        make_random_file "test.1.log", root: dataset
+
+                        @process.process_dataset_transfer(
+                            dataset, @params, @root, full: true
+                        )
+
+                        assert(
+                            File.exist?(@target_dir / "PATH/TO/DATASET" / "test.0.log")
+                        )
+                    end
+                end
+
+                describe ".transfer_dataset" do
+                    it "transfers a dataset through FTP" do
+                        dataset = make_valid_folder("PATH")
+                        make_random_file "test.0.log", root: dataset
+                        LogRuntimeArchive.transfer_dataset(
+                            dataset, @params, @root, full: true
+                        )
+
+                        assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
+                    end
+                end
+
+                describe ".transfer_file" do
+                    it "transfers a file through FTP" do
+                        dataset = make_valid_folder("PATH")
+                        make_random_file "test.log", root: dataset
+                        LogRuntimeArchive.transfer_file(
+                            dataset / "test.log", @params, @root
+                        )
+
+                        assert(File.exist?(@target_dir / "PATH" / "test.log"))
+                    end
+                end
+
+                # Converts rate in Mbps to bps
+                def rate_mbps_to_bps(rate_mbps)
+                    rate_mbps / (10**6)
+                end
+            end
+
             describe "#ensure_free_space" do
                 before do
                     @archive_dir = make_tmppath
@@ -523,7 +638,7 @@ module Syskit
 
                     10.times { |i| (@archive_dir / i.to_s).write(i.to_s) }
 
-                    @archiver = LogRuntimeArchive.new(@root, @archive_dir)
+                    @archiver = LogRuntimeArchive.new(@root, target_dir: @archive_dir)
                 end
 
                 it "does nothing if there is enough free space" do

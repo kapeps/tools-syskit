@@ -36,7 +36,7 @@ module Syskit
                 raise ArgumentError, "log transfer server already running" if @server
 
                 server_update_self_spawned_conf
-                @server = LogTransferServer::SpawnServer.new(
+                @server = Runtime::Server::SpawnServer.new(
                     @conf.target_dir, @conf.user, @conf.password,
                     @self_signed_ca.private_certificate_path,
                     interface: @conf.ip,

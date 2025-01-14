@@ -16,7 +16,7 @@ module Syskit
             # Defined here to make sure it is actually defined. Otherwise, the log
             # state reporting would fail at runtime, and unit-testing for this is
             # very hard.
-            LogUploadState = Server::LogUploadState
+            LogUploadState = RobyApp::LogTransferServer::LogUploadState
 
             # Syskit-side interface to the remote process server
             class Manager
@@ -238,7 +238,7 @@ module Syskit
                 def log_upload_file(
                     host, port, certificate, user, password, localfile,
                     max_upload_rate: Float::INFINITY,
-                    implicit_ftps: RobyApp::LogTransferServer.use_implicit_ftps?
+                    implicit_ftps: Runtime::Server.use_implicit_ftps?
                 )
                     socket.write(COMMAND_LOG_UPLOAD_FILE)
                     Marshal.dump(
