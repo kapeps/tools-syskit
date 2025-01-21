@@ -33,7 +33,9 @@ describe Syskit::NetworkGeneration::LoggerConfigurationSupport do
 
             assert_equal Hash[["state", "task.state"] => {},
                               ["out1", "task.out1"] => {},
-                              ["out2", "task.out2"] => {}], @dataflow_graph.edge_info(task, logger)
+                              ["out2", "task.out2"] => {},
+                              ["out3", "task.out3"] => {}],
+                              @dataflow_graph.edge_info(task, logger)
         end
 
         it "reuses an existing logger task if there is one" do
@@ -43,7 +45,9 @@ describe Syskit::NetworkGeneration::LoggerConfigurationSupport do
 
             assert_equal Hash[["state", "task.state"] => {},
                               ["out1", "task.out1"] => {},
-                              ["out2", "task.out2"] => {}], @dataflow_graph.edge_info(task, logger)
+                              ["out2", "task.out2"] => {},
+                              ["out3", "task.out3"] => {}],
+                              @dataflow_graph.edge_info(task, logger)
         end
 
         it "marks the loggers as permanent" do
@@ -104,8 +108,9 @@ describe Syskit::NetworkGeneration::LoggerConfigurationSupport do
             Syskit::NetworkGeneration::LoggerConfigurationSupport
                 .add_logging_to_network(syskit_engine, plan)
             assert_equal Hash[["state", "task.state"] => {},
-                              ["out2", "task.out2"] => {}],
-                         @dataflow_graph.edge_info(task, logger)
+                              ["out2", "task.out2"] => {},
+                              ["out3", "task.out3"] => {}],
+                              @dataflow_graph.edge_info(task, logger)
         end
 
         it "completely disconnects a task if all its ports are ignored" do
@@ -174,11 +179,13 @@ describe Syskit::NetworkGeneration::LoggerConfigurationSupport do
                 .add_logging_to_network(syskit_engine, plan)
             assert_equal Hash[["state", "task.state"] => {},
                               ["out1", "task.out1"] => {},
-                              ["out2", "task.out2"] => {}],
+                              ["out2", "task.out2"] => {},
+                              ["out3", "task.out3"] => {}],
                          @dataflow_graph.edge_info(new_task, logger)
             assert_equal Hash[["state", "task.state"] => {},
                               ["out1", "task.out1"] => {},
-                              ["out2", "task.out2"] => {}],
+                              ["out2", "task.out2"] => {},
+                              ["out3", "task.out3"] => {}],
                          @dataflow_graph.edge_info(task, logger)
         end
 
@@ -191,6 +198,8 @@ describe Syskit::NetworkGeneration::LoggerConfigurationSupport do
                             .with("task.out1", task, task.out1_port).once
             flexmock(logger).should_receive(:create_logging_port)
                             .with("task.out2", task, task.out2_port).once
+            flexmock(logger).should_receive(:create_logging_port)
+                            .with("task.out3", task, task.out3_port).once
             Syskit::NetworkGeneration::LoggerConfigurationSupport
                 .add_logging_to_network(syskit_engine, plan)
         end
@@ -243,12 +252,15 @@ describe Syskit::NetworkGeneration::LoggerConfigurationSupport do
             flexmock(logger).should_receive(:create_logging_port)
                             .with("task.out2", task, task.out2_port).once.and_return(true)
             flexmock(logger).should_receive(:create_logging_port)
+                            .with("task.out3", task, task.out3_port).once.and_return(true)
+            flexmock(logger).should_receive(:create_logging_port)
                             .with("task.state", task, task.state_port).once.and_return(true)
             flexmock(Orocos.conf).should_receive(:apply)
             syskit_start_execution_agents(logger)
             Orocos.allow_blocking_calls do
                 logger.orocos_task.create_input_port "task.out1", "/double"
                 logger.orocos_task.create_input_port "task.out2", "/int32_t"
+                logger.orocos_task.create_input_port "task.out3", "/orogen_syskit_tests/TestType"
                 logger.orocos_task.create_input_port "task.state", "/int32_t"
                 syskit_configure(logger)
             end
@@ -270,21 +282,12 @@ describe Syskit::NetworkGeneration::LoggerConfigurationSupport do
     end
 
     def create_deployment_model_with_logger
-        Orocos.registry.create_compound "/Time" do |b|
-            b.microseconds = "uint64_t"
-            b.tv_sec = "uint64_t"
-            b.tv_usec = "uint64_t"
-        end
-        test_t = Orocos.registry.create_compound "/Test" do |b|
-            b.time = "/Time"
-            b.other_type = "/int"
-        end
-        test_t.field_metadata["time"].set("role", "logical_time")
+        Roby.app.using_task_library "orogen_syskit_tests"
 
         task_m = @task_m = Syskit::TaskContext.new_submodel do
             output_port "out1", "/double"
             output_port "out2", "/int"
-            output_port "out3", "/Test"
+            output_port "out3", "/orogen_syskit_tests/TestType"
         end
         logger_m = @logger_m = create_logger_model
 
