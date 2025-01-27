@@ -606,10 +606,11 @@ module Syskit
                     it "transfers a dataset through FTP" do
                         dataset = make_valid_folder("PATH")
                         make_random_file "test.0.log", root: dataset
-                        LogRuntimeArchive.transfer_dataset(
+                        results = LogRuntimeArchive.transfer_dataset(
                             dataset, @params, @root, full: true
                         )
 
+                        assert results.success?
                         assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
                     end
                 end
@@ -618,11 +619,12 @@ module Syskit
                     it "transfers a file through FTP" do
                         dataset = make_valid_folder("PATH")
                         make_random_file "test.log", root: dataset
-                        LogRuntimeArchive.transfer_file(
+                        result = LogRuntimeArchive.transfer_file(
                             dataset / "test.log", @params, @root
                         )
 
                         assert(File.exist?(@target_dir / "PATH" / "test.log"))
+                        assert result.success?, "transfer failed: #{result.message}"
                     end
                 end
 
