@@ -526,7 +526,7 @@ module Syskit
                         certificate: @ca.certificate,
                         user: "user", password: "password",
                         implicit_ftps: true,
-                        max_upload_rate: rate_mbps_to_bps(10)
+                        max_upload_rate: 10_000_000
                     )
 
                     @target_dir = make_tmppath
@@ -626,11 +626,6 @@ module Syskit
                         assert(File.exist?(@target_dir / "PATH" / "test.log"))
                         assert result.success?, "transfer failed: #{result.message}"
                     end
-                end
-
-                # Converts rate in Mbps to bps
-                def rate_mbps_to_bps(rate_mbps)
-                    rate_mbps / (10**6)
                 end
             end
 
@@ -738,7 +733,7 @@ module Syskit
             end
 
             def assert_entry_matches(entry, data, name:, content:)
-                assert entry.file?
+                assert entry.file?, "expected #{entry} to be a file"
                 assert_equal name, entry.full_name
                 assert_equal content, decompress_data(data)
             end
