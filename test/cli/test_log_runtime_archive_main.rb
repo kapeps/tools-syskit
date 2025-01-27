@@ -137,6 +137,7 @@ module Syskit
 
                 after do
                     @server.stop
+                    @server.join
                 end
 
                 it "successfully creates an FTP server" do
