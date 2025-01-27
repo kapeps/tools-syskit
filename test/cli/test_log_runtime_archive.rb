@@ -521,15 +521,18 @@ module Syskit
                 before do
                     host = "127.0.0.1"
                     @ca = RobyApp::TmpRootCA.new(host)
-                    @params = LogRuntimeArchive::FTPParameters.new(
-                        host: host, port: 21,
+                    params = LogRuntimeArchive::FTPParameters.new(
+                        host: host, port: 0,
                         certificate: @ca.certificate,
                         user: "user", password: "password",
-                        implicit_ftps: true, max_upload_rate: rate_mbps_to_bps(10)
+                        implicit_ftps: true,
+                        max_upload_rate: rate_mbps_to_bps(10)
                     )
 
                     @target_dir = make_tmppath
-                    @server = create_server
+                    @server = create_server(params)
+                    params.port = @server.port
+                    @params = params
                     @process = LogRuntimeArchive.new(@root)
                 end
 
@@ -541,15 +544,13 @@ module Syskit
                     @server = nil
                 end
 
-                def create_server
-                    server = Runtime::Server::SpawnServer.new(
-                        @target_dir, @params.user, @params.password,
+                def create_server(params)
+                    Runtime::Server::SpawnServer.new(
+                        @target_dir, params.user, params.password,
                         @ca.private_certificate_path,
-                        interface: @params.host,
-                        implicit_ftps: @params.implicit_ftps
+                        interface: params.host,
+                        implicit_ftps: params.implicit_ftps
                     )
-                    @params.port = server.port
-                    server
                 end
 
                 describe ".process_root_folder_transfer" do
