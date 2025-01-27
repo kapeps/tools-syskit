@@ -603,15 +603,41 @@ module Syskit
                 end
 
                 describe ".transfer_dataset" do
+                    before do
+                        @dataset = make_valid_folder("PATH")
+                        make_random_file "test.0.log", root: @dataset
+                    end
+
                     it "transfers a dataset through FTP" do
-                        dataset = make_valid_folder("PATH")
-                        make_random_file "test.0.log", root: dataset
                         results = LogRuntimeArchive.transfer_dataset(
-                            dataset, @params, @root, full: true
+                            @dataset, @params, @root, full: true
                         )
 
                         assert results.success?
+                        # Datasets that have pocolog files are not complete
+                        refute results.complete
                         assert(File.exist?(@target_dir / "PATH" / "test.0.log"))
+                    end
+
+                    it "removes the source file if the transfer was successful" do
+                        results = LogRuntimeArchive.transfer_dataset(
+                            @dataset, @params, @root, full: true
+                        )
+
+                        assert results.success?
+                        refute((@dataset / "test.0.log").exist?)
+                    end
+
+                    it "does not remove the source file if the transfer failed" do
+                        flexmock(LogRuntimeArchive)
+                            .should_receive(:transfer_file)
+                            .and_return(flexmock(success?: false))
+                        results = LogRuntimeArchive.transfer_dataset(
+                            @dataset, @params, @root, full: true
+                        )
+
+                        refute results.success?
+                        assert((@dataset / "test.0.log").exist?)
                     end
                 end
 

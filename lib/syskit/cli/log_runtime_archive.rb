@@ -169,7 +169,10 @@ module Syskit
                     end
 
                 transfer_results = candidates.map do |child_path|
-                    transfer_file(child_path, server, root)
+                    result = transfer_file(child_path, server, root)
+                    child_path.unlink if result.success?
+
+                    result
                 end
 
                 TransferDatasetResult.new(
